@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retinal Care Platform — System Flowchart</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .flowchart-page { background: #f4f6f9; padding: 32px 24px 64px; }
+  .fc-header { max-width: 1260px; margin: 0 auto 24px; }
+  .fc-header h1 { font-size: 26px; margin: 0 0 4px; }
+  .fc-header p { color: #5b6472; margin: 0 0 16px; font-size: 14px; }
+  .fc-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .fc-legend { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin-left: auto; font-size: 12px; color: #5b6472; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+  .legend-dot.high { background: #d64545; } .legend-dot.medium { background: #e8963a; } .legend-dot.low { background: #3a9d63; }
+  .flow-title { font-size: 28px; font-weight: 700; letter-spacing: -.01em; }
+  .fc-diagram { background: #fff; border: 1px solid #dfe4ec; border-radius: 12px; box-shadow: 0 1px 3px rgba(16,24,40,.06); max-width: 1260px; margin: 0 auto; padding: 12px; overflow-x: auto; }
+  .fc-diagram svg { width: 100%; min-width: 1240px; height: auto; display: block; }
+  .flow-note { font-size: 12.5px; color: #5b6472; margin-top: 14px; max-width: 1260px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+</style>
+</head>
+<body class="flowchart-page">
+  <header class="fc-header">
+    <h1 class="flow-title">Retinal Care Platform — System Flowchart</h1>
+    <p>AI-assisted triage and clinical workflow for retinal care. The AI supports clinicians — it never replaces them.</p>
+    <div class="fc-actions">
+      <a class="btn btn-primary" href="index.html">Open Interactive Wireframe →</a>
+      <div class="fc-legend">
+        <span class="legend-item"><span class="legend-dot high"></span> HIGH risk</span>
+        <span class="legend-item"><span class="legend-dot medium"></span> MEDIUM risk</span>
+        <span class="legend-item"><span class="legend-dot low"></span> LOW risk</span>
+        <span class="legend-item"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid #9aa3b2;"></span> Decision point</span>
+        <span class="legend-item"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#fff;border:2px dashed #5b21b6;"></span> Direct specialist consult</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="fc-diagram">
+  <svg viewBox="0 0 1240 2100" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+    <defs>
+      <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#7a8494"/></marker>
+      <marker id="arrR" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#d64545"/></marker>
+      <marker id="arrM" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#e8963a"/></marker>
+      <marker id="arrG" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#3a9d63"/></marker>
+      <marker id="arrP" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#5b21b6"/></marker>
+    </defs>
+
+    <!-- ============ LANE BACKGROUNDS (all equal: y 70..1630) ============ -->
+    <rect x="20"  y="70" width="224" height="1560" rx="10" fill="#eef7f6"/>
+    <rect x="260" y="70" width="224" height="1560" rx="10" fill="#eef2fb"/>
+    <rect x="500" y="70" width="224" height="1560" rx="10" fill="#fdf3e7"/>
+    <rect x="740" y="70" width="224" height="1560" rx="10" fill="#eef4f6"/>
+    <rect x="980" y="70" width="240" height="1560" rx="10" fill="#f4f1fa"/>
+
+    <!-- completion + admin bands -->
+    <rect x="20" y="1660" width="1200" height="150" rx="10" fill="#f3f7f1"/>
+    <rect x="20" y="1830" width="1200" height="180" rx="10" fill="#f1f3f5"/>
+
+    <!-- lane titles -->
+    <text x="132"  y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#0f766e">INTAKE</text>
+    <text x="372"  y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#1c4fd6">AI TRIAGE</text>
+    <text x="612"  y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#b45309">WAITING ROOMS</text>
+    <text x="852"  y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#155e75">MBBS DOCTOR</text>
+    <text x="1100" y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#5b21b6">SPECIALIST</text>
+
+    <text x="620" y="1688" text-anchor="middle" font-size="13" font-weight="700" fill="#2f6b3a">COMPLETION</text>
+    <text x="620" y="1858" text-anchor="middle" font-size="13" font-weight="700" fill="#3a4353">ADMINISTRATION — WAITING-ROOM MANAGEMENT</text>
+
+    <!-- ============ INTAKE LANE (center 132) ============ -->
+    <rect x="82"  y="130" width="100" height="40" rx="8" fill="#0f766e"/><text x="132" y="155" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">Nurse / Intake</text>
+    <line x1="132" y1="170" x2="132" y2="196" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="72"  y="200" width="120" height="40" rx="8" fill="#fff" stroke="#0f766e" stroke-width="1.6"/><text x="132" y="225" text-anchor="middle" font-size="12.5" font-weight="600" fill="#0f766e">Patient Registration</text>
+    <line x1="132" y1="240" x2="132" y2="266" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="72"  y="270" width="120" height="40" rx="8" fill="#fff" stroke="#0f766e" stroke-width="1.6"/><text x="132" y="295" text-anchor="middle" font-size="12.5" font-weight="600" fill="#0f766e">Patient Information</text>
+    <line x1="132" y1="310" x2="132" y2="336" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="52"  y="340" width="160" height="46" rx="8" fill="#fff" stroke="#0f766e" stroke-width="1.6"/><text x="132" y="358" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f766e">Retinal Image Capture /</text><text x="132" y="374" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f766e">Upload</text>
+    <line x1="132" y1="386" x2="132" y2="416" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="82"  y="420" width="100" height="40" rx="8" fill="#0f766e"/><text x="132" y="445" text-anchor="middle" font-size="12.5" font-weight="600" fill="#fff">Submit Image</text>
+    <line x1="132" y1="460" x2="132" y2="487" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="66"  y="491" width="132" height="44" rx="22" fill="#e3f1f0" stroke="#0f766e" stroke-width="1.4" stroke-dasharray="4 3"/><text x="132" y="517" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f766e">AI Analysis Triggered</text>
+    <line x1="198" y1="513" x2="318" y2="440" stroke="#7a8494" stroke-width="1.8" marker-end="url(#arr)"/>
+
+    <!-- nurse waiting room + discharge desk -->
+    <rect x="52" y="600" width="160" height="46" rx="8" fill="#fff" stroke="#0f766e" stroke-width="1.6"/><text x="132" y="618" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f766e">Nurse Waiting Room</text><text x="132" y="634" text-anchor="middle" font-size="10" fill="#5b6472">LOW risk · nurse review</text>
+    <line x1="132" y1="646" x2="132" y2="686" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="66" y="690" width="132" height="44" rx="8" fill="#0f766e"/><text x="132" y="716" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">Discharge Desk</text>
+
+    <!-- ============ AI TRIAGE LANE (center 372) ============ -->
+    <rect x="318" y="420" width="108" height="40" rx="8" fill="#1c4fd6"/><text x="372" y="445" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">AI Analysis</text>
+    <line x1="372" y1="460" x2="372" y2="496" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="308" y="500" width="128" height="40" rx="8" fill="#fff" stroke="#1c4fd6" stroke-width="1.6"/><text x="372" y="525" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1c4fd6">Risk Score</text>
+    <line x1="372" y1="540" x2="372" y2="566" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="308" y="570" width="128" height="40" rx="8" fill="#fff" stroke="#1c4fd6" stroke-width="1.6"/><text x="372" y="595" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1c4fd6">Risk Level</text>
+    <line x1="372" y1="610" x2="372" y2="636" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="308" y="640" width="128" height="44" rx="8" fill="#fff" stroke="#1c4fd6" stroke-width="1.6"/><text x="372" y="659" text-anchor="middle" font-size="11.5" font-weight="600" fill="#1c4fd6">Biomarkers /</text><text x="372" y="675" text-anchor="middle" font-size="11.5" font-weight="600" fill="#1c4fd6">Findings</text>
+    <line x1="372" y1="684" x2="372" y2="711" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="322" y="715" width="100" height="52" rx="26" fill="#fff" stroke="#3a4353" stroke-width="1.6" stroke-dasharray="5 3"/><text x="372" y="738" text-anchor="middle" font-size="11.5" font-weight="600" fill="#3a4353">Classify</text><text x="372" y="754" text-anchor="middle" font-size="11.5" font-weight="600" fill="#3a4353">Risk</text>
+
+    <!-- risk fan-out arrows → waiting room boxes -->
+    <line x1="422" y1="725" x2="556" y2="810" stroke="#d64545" stroke-width="2" marker-end="url(#arrR)"/><text x="438" y="717" font-size="11" fill="#d64545" font-weight="700">HIGH</text>
+    <line x1="422" y1="742" x2="556" y2="878" stroke="#e8963a" stroke-width="1.8" marker-end="url(#arrM)"/><text x="438" y="768" font-size="11" fill="#b45309" font-weight="700">MEDIUM</text>
+    <line x1="422" y1="759" x2="212" y2="623" stroke="#3a9d63" stroke-width="1.8" marker-end="url(#arrG)"/><text x="286" y="668" font-size="11" fill="#2f6b3a" font-weight="700">LOW</text>
+
+    <!-- ============ WAITING ROOM LANE (center 612) ============ -->
+    <rect x="556" y="790" width="112" height="58" rx="8" fill="#fff" stroke="#d64545" stroke-width="1.6"/><text x="612" y="810" text-anchor="middle" font-size="11.5" font-weight="700" fill="#d64545">HIGH RISK</text><text x="612" y="828" text-anchor="middle" font-size="10" fill="#5b6472">MBBS · or Spec. direct</text>
+    <line x1="612" y1="848" x2="612" y2="854" stroke="#7a8494" stroke-width="1.4" marker-end="url(#arr)"/>
+    <rect x="556" y="858" width="112" height="40" rx="8" fill="#fff" stroke="#e8963a" stroke-width="1.6"/><text x="612" y="878" text-anchor="middle" font-size="11" font-weight="700" fill="#b45309">MEDIUM RISK</text><text x="612" y="893" text-anchor="middle" font-size="10" fill="#5b6472">MBBS · after HIGH</text>
+    <line x1="612" y1="898" x2="612" y2="996" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="562" y="1000" width="100" height="40" rx="8" fill="#155e75"/><text x="612" y="1025" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">Select Patient</text>
+    <line x1="612" y1="1040" x2="612" y2="1066" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="556" y="1070" width="112" height="56" rx="8" fill="#fff" stroke="#155e75" stroke-width="1.6"/><text x="612" y="1090" text-anchor="middle" font-size="11.5" font-weight="600" fill="#155e75">Patient Panel</text><text x="612" y="1108" text-anchor="middle" font-size="10.5" fill="#5b6472">Image · AI · History</text>
+    <line x1="668" y1="1098" x2="808" y2="1090" stroke="#7a8494" stroke-width="1.8" marker-end="url(#arr)"/>
+
+    <!-- routing decision: specialist available? -->
+    <line x1="668" y1="810" x2="796" y2="786" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="796" y="760" width="112" height="52" rx="26" fill="#fff" stroke="#3a4353" stroke-width="1.6" stroke-dasharray="5 3"/><text x="852" y="782" text-anchor="middle" font-size="11.5" font-weight="600" fill="#3a4353">Specialist</text><text x="852" y="798" text-anchor="middle" font-size="11.5" font-weight="600" fill="#3a4353">available?</text>
+    <line x1="852" y1="812" x2="852" y2="1066" stroke="#3a4353" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arr)"/><text x="758" y="1000" font-size="10.5" fill="#3a4353" font-weight="600">No — MBBS</text>
+    <line x1="908" y1="786" x2="1025" y2="1238" stroke="#5b21b6" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrP)"/><text x="912" y="1032" font-size="11" fill="#5b21b6" font-weight="700">Yes — direct</text>
+
+    <!-- ============ MBBS LANE (center 852) ============ -->
+    <rect x="808" y="1070" width="88" height="40" rx="8" fill="#155e75"/><text x="852" y="1095" text-anchor="middle" font-size="12.5" font-weight="600" fill="#fff">MBBS Review</text>
+    <line x1="852" y1="1110" x2="852" y2="1136" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="792" y="1140" width="120" height="56" rx="8" fill="#fff" stroke="#155e75" stroke-width="1.6"/><text x="852" y="1160" text-anchor="middle" font-size="11.5" font-weight="600" fill="#155e75">Doctor Assessment</text><text x="852" y="1178" text-anchor="middle" font-size="11" fill="#5b6472">Notes · Prescription</text>
+    <line x1="852" y1="1196" x2="852" y2="1222" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="812" y="1226" width="80" height="52" rx="26" fill="#fff" stroke="#3a4353" stroke-width="1.6"/><text x="852" y="1252" text-anchor="middle" font-size="12" font-weight="700" fill="#3a4353">Decision</text>
+    <!-- Prescribe branch -->
+    <line x1="852" y1="1278" x2="852" y2="1306" stroke="#3a9d63" stroke-width="2" marker-end="url(#arrG)"/><text x="864" y="1296" font-size="11" fill="#2f6b3a" font-weight="700">Prescribe</text>
+    <rect x="800" y="1310" width="104" height="40" rx="8" fill="#fff" stroke="#3a9d63" stroke-width="1.6"/><text x="852" y="1335" text-anchor="middle" font-size="12" font-weight="600" fill="#2f6b3a">Prescription</text>
+    <!-- Refer branch → specialist -->
+    <line x1="892" y1="1252" x2="1025" y2="1246" stroke="#5b21b6" stroke-width="2" marker-end="url(#arrP)"/><text x="948" y="1234" font-size="11" fill="#5b21b6" font-weight="700">Refer</text>
+    <!-- down to completion -->
+    <line x1="852" y1="1350" x2="852" y2="1690" stroke="#7a8494" stroke-width="1.8" marker-end="url(#arr)"/>
+
+    <!-- ============ SPECIALIST LANE (center 1100) ============ -->
+    <rect x="1025" y="1226" width="150" height="40" rx="8" fill="#5b21b6"/><text x="1100" y="1251" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">Specialist Waiting Room</text>
+    <line x1="1100" y1="1266" x2="1100" y2="1286" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="1025" y="1290" width="150" height="44" rx="8" fill="#fff" stroke="#5b21b6" stroke-width="1.6"/><text x="1100" y="1309" text-anchor="middle" font-size="11" font-weight="600" fill="#5b21b6">Retinal Reading Screen</text><text x="1100" y="1325" text-anchor="middle" font-size="10.5" fill="#5b6472">Image · AI · History</text>
+    <line x1="1100" y1="1334" x2="1100" y2="1360" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="1030" y="1364" width="140" height="40" rx="8" fill="#fff" stroke="#5b21b6" stroke-width="1.6"/><text x="1100" y="1389" text-anchor="middle" font-size="11.5" font-weight="600" fill="#5b21b6">Specialist Assessment</text>
+    <line x1="1100" y1="1404" x2="1100" y2="1430" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="1030" y="1434" width="140" height="40" rx="8" fill="#fff" stroke="#5b21b6" stroke-width="1.6"/><text x="1100" y="1459" text-anchor="middle" font-size="11.5" font-weight="600" fill="#5b21b6">Prescription + Sign-Off</text>
+    <!-- down to completion -->
+    <line x1="1100" y1="1474" x2="1100" y2="1690" stroke="#7a8494" stroke-width="1.8" marker-end="url(#arr)"/>
+
+    <!-- ============ COMPLETION BAND ============ -->
+    <rect x="790"  y="1690" width="130" height="44" rx="8" fill="#fff" stroke="#2f6b3a" stroke-width="1.6"/><text x="855" y="1710" text-anchor="middle" font-size="11.5" font-weight="600" fill="#2f6b3a">Prescription</text><text x="855" y="1726" text-anchor="middle" font-size="11.5" font-weight="600" fill="#2f6b3a">Signed Off</text>
+    <line x1="920" y1="1712" x2="1050" y2="1712" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="1050" y="1690" width="130" height="44" rx="8" fill="#2f6b3a"/><text x="1115" y="1710" text-anchor="middle" font-size="11.5" font-weight="600" fill="#fff">Visit</text><text x="1115" y="1726" text-anchor="middle" font-size="11.5" font-weight="600" fill="#fff">Completed ✓</text>
+    <line x1="1115" y1="1734" x2="1115" y2="1756" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
+    <rect x="1050" y="1760" width="130" height="40" rx="8" fill="#fff" stroke="#2f6b3a" stroke-width="1.6"/><text x="1115" y="1780" text-anchor="middle" font-size="11" font-weight="600" fill="#2f6b3a">History</text><text x="1115" y="1794" text-anchor="middle" font-size="11" font-weight="600" fill="#2f6b3a">Archived</text>
+    <!-- completed visits return to nurse discharge desk -->
+    <line x1="1050" y1="1780" x2="30" y2="1780" stroke="#0f766e" stroke-width="1.8" stroke-dasharray="7 5"/>
+    <line x1="30" y1="1780" x2="30" y2="712" stroke="#0f766e" stroke-width="1.8" stroke-dasharray="7 5"/>
+    <line x1="30" y1="712" x2="66" y2="712" stroke="#0f766e" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr)"/>
+    <text x="330" y="1773" font-size="11" fill="#0f766e" font-weight="600">Completed visits return to the Nurse discharge desk</text>
+    <text x="60" y="1745" font-size="11" fill="#5b6472">Archived → available as “Previous Visits” on future encounters.</text>
+
+    <!-- ============ ADMIN BAND ============ -->
+    <rect x="60"   y="1890" width="150" height="40" rx="8" fill="#fff" stroke="#6b7280" stroke-width="1.5"/><text x="135" y="1915" text-anchor="middle" font-size="12" font-weight="600" fill="#3a4353">Monitor Waiting Rooms</text>
+    <rect x="240"  y="1890" width="150" height="40" rx="8" fill="#fff" stroke="#6b7280" stroke-width="1.5"/><text x="315" y="1915" text-anchor="middle" font-size="12" font-weight="600" fill="#3a4353">Patient Queues / Status</text>
+    <rect x="420"  y="1890" width="150" height="40" rx="8" fill="#fff" stroke="#6b7280" stroke-width="1.5"/><text x="495" y="1915" text-anchor="middle" font-size="12" font-weight="600" fill="#3a4353">Manage Doctors</text>
+    <rect x="600"  y="1890" width="150" height="40" rx="8" fill="#fff" stroke="#6b7280" stroke-width="1.5"/><text x="675" y="1915" text-anchor="middle" font-size="12" font-weight="600" fill="#3a4353">Manage Specialists</text>
+    <rect x="780"  y="1890" width="170" height="40" rx="8" fill="#fff" stroke="#6b7280" stroke-width="1.5"/><text x="865" y="1915" text-anchor="middle" font-size="12" font-weight="600" fill="#3a4353">Help Route Patients</text>
+    <text x="620" y="1970" text-anchor="middle" font-size="11" fill="#8b93a3">Read-only monitoring &amp; routing support — clinical decisions always remain with doctors.</text>
+
+    <!-- footnote -->
+    <text x="620" y="2060" text-anchor="middle" font-size="12" fill="#5b6472">AI = triage &amp; decision support only · Clinicians make all final clinical decisions</text>
+  </svg>
+  </section>
+
+  <p class="flow-note">
+    <strong>How to read this diagram:</strong> A nurse registers the patient and captures a retinal image. The AI analyzes the image and produces a risk score, risk level (HIGH / MEDIUM / LOW) and biomarker findings — used for <em>triage and decision support only</em>. Each care level has its own waiting room: HIGH and MEDIUM risk patients wait in the MBBS queue (HIGH cases are served first), while LOW risk patients go to the Nurse waiting room. If a specialist is available, HIGH risk patients route <em>directly</em> to them (in-person, Teams or WhatsApp) without an MBBS visit. The doctor opens the patient panel, reviews image, AI findings and previous visits, then either prescribes or refers to a specialist; the specialist reviews the case on the retinal reading screen, completes an assessment and signs off the prescription. Completed visits return to the Nurse discharge desk, then are archived to history. Administration monitors queues and staff to keep the waiting rooms moving.
+  </p>
+</body>
+</html>
