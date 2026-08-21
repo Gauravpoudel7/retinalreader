@@ -34,7 +34,7 @@ D.patients = [
     id: "p1", name: "Arjun Nair", age: 62, patientId: "RP-10241", contact: "+91 98450 22130",
     condition: "Type 2 Diabetes (12 yrs), Hypertension",
     risk: "HIGH", score: 95, waitMin: 12, status: "queued", routedTo: "mbbs", assignedTo: "d1",
-    visitNo: 4,
+    requestedSpec: false, visitNo: 4,
     findings: [
       { text: "Moderate non-proliferative diabetic retinopathy signs in both eyes", sev: "high" },
       { text: "Microaneurysms cluster — superior temporal quadrant, right eye", sev: "high" },
@@ -58,7 +58,7 @@ D.patients = [
     id: "p2", name: "Sunita Verma", age: 55, patientId: "RP-10242", contact: "+91 98220 44871",
     condition: "Sudden vision loss (right eye)",
     risk: "HIGH", score: 91, waitMin: 8, status: "queued", routedTo: "mbbs", assignedTo: "d2",
-    visitNo: 1,
+    requestedSpec: false, visitNo: 1,
     findings: [
       { text: "Macular edema with central thickening — right eye", sev: "high" },
       { text: "Hard exudates in macular star pattern", sev: "high" },
@@ -78,7 +78,7 @@ D.patients = [
     risk: "HIGH", score: 88, waitMin: 21, status: "queued", routedTo: "specialist", assignedTo: "s3",
     directConsult: true, mode: "WhatsApp",
     referral: { reason: "Direct HIGH-risk consult — specialist available (teleconsult)", byDoctor: "AI Triage · direct routing", date: "Today 09:05", priority: "High" },
-    visitNo: 2,
+    requestedSpec: false, visitNo: 2,
     findings: [
       { text: "Optic disc cupping increase vs baseline — cup/disc 0.7", sev: "high" },
       { text: "Peripapillary atrophy — superior sector", sev: "medium" },
@@ -98,7 +98,7 @@ D.patients = [
     id: "p4", name: "Farah Khan", age: 47, patientId: "RP-10244", contact: "+91 90040 77112",
     condition: "Diabetic retinopathy screening",
     risk: "MEDIUM", score: 72, waitMin: 14, status: "queued", routedTo: "mbbs", assignedTo: "d2",
-    visitNo: 3,
+    requestedSpec: false, visitNo: 3,
     findings: [
       { text: "Mild NPDR — scattered microaneurysms", sev: "medium" },
       { text: "Few dot hemorrhages, nasal retina", sev: "medium" }
@@ -119,7 +119,7 @@ id: "p5", name: "Rajesh Pillai", age: 58, patientId: "RP-10245", contact: "+91 9
     condition: "Wet AMD suspicion (left eye)",
     risk: "MEDIUM", score: 68, waitMin: 6, status: "queued", routedTo: "specialist", assignedTo: "s2",
     referral: { reason: "Suspect neovascular AMD — specialist review for anti-VEGF assessment", byDoctor: "Dr. Rohan Mehta", date: "Today 10:42", priority: "High" },
-    visitNo: 2,
+    requestedSpec: true, visitNo: 2,
     findings: [
       { text: "Drusen clusters — central macula, left eye", sev: "medium" },
       { text: "Possible subretinal fluid — needs OCT confirmation", sev: "high" },
@@ -140,7 +140,7 @@ id: "p6", name: "Geeta Desai", age: 51, patientId: "RP-10246", contact: "+91 976
     condition: "Retinal vein occlusion follow-up (right eye)",
     risk: "MEDIUM", score: 66, waitMin: 18, status: "queued", routedTo: "specialist", assignedTo: "s1",
     referral: { reason: "CRVO follow-up — review for persistent macular edema", byDoctor: "Dr. Anjali Sharma", date: "Today 09:15", priority: "Medium" },
-    visitNo: 3,
+    requestedSpec: false, visitNo: 3,
     findings: [
       { text: "Resolving retinal hemorrhages along arcades", sev: "medium" },
       { text: "Cystoid changes suggested at macula", sev: "medium" },
@@ -161,7 +161,7 @@ id: "p6", name: "Geeta Desai", age: 51, patientId: "RP-10246", contact: "+91 976
     id: "p7", name: "Kiran Joshi", age: 38, patientId: "RP-10247", contact: "+91 99870 66410",
     condition: "Routine diabetic screening",
     risk: "LOW", score: 25, waitMin: 20, status: "queued", routedTo: "nurse", assignedTo: "n1",
-    visitNo: 1,
+    requestedSpec: false, visitNo: 1,
     findings: [
       { text: "No diabetic retinopathy detected", sev: "low" },
       { text: "Mild dry eye pattern noted", sev: "low" }
@@ -178,7 +178,7 @@ id: "p6", name: "Geeta Desai", age: 51, patientId: "RP-10246", contact: "+91 976
     id: "p8", name: "Lakshmi Iyer", age: 66, patientId: "RP-10248", contact: "+91 94000 55718",
     condition: "Cataract + glaucoma screening",
     risk: "LOW", score: 18, waitMin: 10, status: "queued", routedTo: "nurse", assignedTo: "n2",
-    visitNo: 2,
+    requestedSpec: false, visitNo: 2,
     findings: [
       { text: "Minimal age-related changes", sev: "low" },
       { text: "Mild nerve fibre layer thinning — non-progressive", sev: "low" }
@@ -197,7 +197,7 @@ id: "p6", name: "Geeta Desai", age: 51, patientId: "RP-10246", contact: "+91 976
 D.seed = {
   id: "p9", name: "", age: "", patientId: "RP-10249", contact: "",
   condition: "", risk: null, score: null, waitMin: 0, status: "queued", routedTo: null, assignedTo: "n1",
-  visitNo: 1, findings: [], biomarkers: [], history: [], aiModel: "RetinaNet v2 · triage model · demo",
+  requestedSpec: false, visitNo: 1, findings: [], biomarkers: [], history: [], aiModel: "RetinaNet v2 · triage model · demo",
   isNew: true
 };
 

@@ -6,172 +6,603 @@
 <title>Retinal Care Platform — System Flowchart</title>
 <link rel="stylesheet" href="css/styles.css">
 <style>
-  .flowchart-page { background: #f4f6f9; padding: 32px 24px 64px; }
-  .fc-header { max-width: 1260px; margin: 0 auto 24px; }
-  .fc-header h1 { font-size: 26px; margin: 0 0 4px; }
-  .fc-header p { color: #5b6472; margin: 0 0 16px; font-size: 14px; }
-  .fc-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .fc-legend { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin-left: auto; font-size: 12px; color: #5b6472; }
-  .legend-item { display: flex; align-items: center; gap: 6px; }
-  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
-  .legend-dot.high { background: #d64545; } .legend-dot.medium { background: #e8963a; } .legend-dot.low { background: #3a9d63; }
-  .flow-title { font-size: 28px; font-weight: 700; letter-spacing: -.01em; }
-  .fc-diagram { background: #fff; border: 1px solid #dfe4ec; border-radius: 12px; box-shadow: 0 1px 3px rgba(16,24,40,.06); max-width: 1260px; margin: 0 auto; padding: 12px; overflow-x: auto; }
-  .fc-diagram svg { width: 100%; min-width: 1240px; height: auto; display: block; }
-  .flow-note { font-size: 12.5px; color: #5b6472; margin-top: 14px; max-width: 1260px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+  /* ============================================================
+     Retinal Care Platform — System Flowchart
+     Professional clinical system architecture diagram
+     (Design/UX refactor only — workflow unchanged)
+     ============================================================ */
+
+  :root {
+    --bg: #f4f6f9;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --border: #dfe4ec;
+    --border-strong: #cbd3de;
+    --text: #1a2233;
+    --text-2: #5b6472;
+    --text-3: #8b93a3;
+
+    --primary: #1c4fd6;
+    --primary-soft: #eef2fb;
+    --primary-dark: #153aa0;
+
+    --nurse: #0f766e;
+    --nurse-soft: #eef7f6;
+    --mbbs: #155e75;
+    --mbbs-soft: #eef4f6;
+    --spec: #5b21b6;
+    --spec-soft: #f4f1fa;
+    --admin: #475467;
+    --admin-soft: #f1f3f5;
+
+    --high: #d64545;
+    --high-soft: #fdefef;
+    --medium: #e8963a;
+    --medium-soft: #fdf3e7;
+    --medium-text: #b45309;
+    --low: #3a9d63;
+    --low-soft: #eef8f1;
+    --success: #2f6b3a;
+
+    --shadow-sm: 0 1px 2px rgba(16,24,40,.05);
+    --shadow-md: 0 2px 8px rgba(16,24,40,.07);
+    --radius: 10px;
+    --radius-lg: 14px;
+    --font: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+  }
+
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .flowchart-page { background: var(--bg); padding: 32px 24px 56px; }
+
+  /* ---------- Header ---------- */
+  .fc-header {
+    max-width: 1320px; margin: 0 auto 16px;
+    display: grid; grid-template-columns: 1fr auto; gap: 24px;
+    align-items: end;
+  }
+  .fc-header__eyebrow {
+    display: block; font-size: 11px; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 6px;
+  }
+  .fc-header__title {
+    margin: 0 0 8px; font-size: 26px; font-weight: 700;
+    letter-spacing: -.015em; color: var(--text);
+    line-height: 1.2;
+  }
+  .fc-header__sub {
+    margin: 0; font-size: 14px; color: var(--text-2);
+    max-width: 680px; line-height: 1.55;
+  }
+  .fc-header__actions { display: flex; gap: 10px; align-items: center; }
+  .fc-header__actions .btn { padding: 11px 20px; font-size: 14px; border-radius: 10px; }
+
+  /* ---------- Legend card ---------- */
+  .fc-legend-card {
+    max-width: 1320px; margin: 0 auto 20px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 22px;
+    display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+    box-shadow: var(--shadow-sm);
+  }
+  .fc-legend-card__title {
+    margin: 0; font-size: 11px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .fc-legend-card__list {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; gap: 20px; flex-wrap: wrap;
+    font-size: 12.5px; color: var(--text-2); font-weight: 500;
+  }
+  .fc-legend-card__list li { display: flex; align-items: center; gap: 8px; }
+  .legend-swatch {
+    width: 14px; height: 14px; border-radius: 3px;
+    border: 1px solid transparent; display: inline-block;
+    flex-shrink: 0;
+  }
+  .legend-swatch--high     { background: var(--high); }
+  .legend-swatch--medium   { background: var(--medium); }
+  .legend-swatch--low      { background: var(--low); }
+  .legend-swatch--decision {
+    background: #fff; border: 1.5px solid var(--border-strong);
+    transform: rotate(45deg); width: 12px; height: 12px;
+    border-radius: 2px;
+  }
+  .legend-swatch--specialist {
+    background: #fff; border: 1.5px dashed var(--spec);
+  }
+
+  /* ---------- Diagram card ---------- */
+  .fc-diagram {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+    max-width: 1320px; margin: 0 auto;
+    padding: 20px;
+  }
+  .fc-diagram__inner {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .fc-diagram svg {
+    display: block;
+    width: 100%; height: auto;
+    min-width: 1320px;
+  }
+
+  /* ---------- Flow note ---------- */
+  .flow-note {
+    font-size: 12.5px; color: var(--text-2);
+    margin: 16px auto 0; max-width: 1320px;
+    line-height: 1.65;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1100px) {
+    .fc-header { grid-template-columns: 1fr; align-items: start; }
+    .fc-header__actions { justify-self: start; }
+    .fc-diagram svg { min-width: 1100px; }
+  }
+  @media (max-width: 768px) {
+    .flowchart-page { padding: 18px 12px 40px; }
+    .fc-header__title { font-size: 22px; }
+    .fc-header__sub { font-size: 13px; }
+    .fc-diagram { padding: 10px; border-radius: var(--radius); position: relative; }
+    .fc-diagram::before {
+      content: "Swipe to explore the diagram →";
+      display: block; font-size: 11px; color: var(--text-3);
+      margin-bottom: 8px; letter-spacing: .04em;
+    }
+    .fc-diagram svg { min-width: 980px; }
+    .fc-legend-card { padding: 12px 14px; gap: 12px; }
+    .fc-legend-card__list { gap: 12px; font-size: 12px; }
+  }
 </style>
 </head>
 <body class="flowchart-page">
+
   <header class="fc-header">
-    <h1 class="flow-title">Retinal Care Platform — System Flowchart</h1>
-    <p>AI-assisted triage and clinical workflow for retinal care. The AI supports clinicians — it never replaces them.</p>
-    <div class="fc-actions">
+    <div class="fc-header__main">
+      <span class="fc-header__eyebrow">System Architecture</span>
+      <h1 class="fc-header__title">Retinal Care Platform — System Flowchart</h1>
+      <p class="fc-header__sub">AI-assisted triage and clinical workflow for retinal care. The AI supports clinicians — it never replaces them.</p>
+    </div>
+    <div class="fc-header__actions">
       <a class="btn btn-primary" href="index.html">Open Interactive Wireframe →</a>
-      <div class="fc-legend">
-        <span class="legend-item"><span class="legend-dot high"></span> HIGH risk</span>
-        <span class="legend-item"><span class="legend-dot medium"></span> MEDIUM risk</span>
-        <span class="legend-item"><span class="legend-dot low"></span> LOW risk</span>
-        <span class="legend-item"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid #9aa3b2;"></span> Decision point</span>
-        <span class="legend-item"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#fff;border:2px dashed #5b21b6;"></span> Direct specialist consult</span>
-      </div>
     </div>
   </header>
 
+  <aside class="fc-legend-card" aria-label="Diagram legend">
+    <h2 class="fc-legend-card__title">Legend</h2>
+    <ul class="fc-legend-card__list">
+      <li><span class="legend-swatch legend-swatch--high"></span> HIGH risk</li>
+      <li><span class="legend-swatch legend-swatch--medium"></span> MEDIUM risk</li>
+      <li><span class="legend-swatch legend-swatch--low"></span> LOW risk</li>
+      <li><span class="legend-swatch legend-swatch--decision"></span> Decision point</li>
+      <li><span class="legend-swatch legend-swatch--specialist"></span> Direct specialist consult</li>
+    </ul>
+  </aside>
+
   <section class="fc-diagram">
-  <svg viewBox="0 0 1240 2100" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+    <div class="fc-diagram__inner">
+  <svg viewBox="0 0 1320 1700" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Retinal Care Platform clinical workflow flowchart">
     <defs>
-      <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#7a8494"/></marker>
-      <marker id="arrR" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#d64545"/></marker>
-      <marker id="arrM" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#e8963a"/></marker>
-      <marker id="arrG" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#3a9d63"/></marker>
-      <marker id="arrP" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#5b21b6"/></marker>
+      <style>
+        .fc-svg text { font-family: "Inter","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif; }
+        /* Lane */
+        .lane { fill: var(--surface-2); stroke: var(--border); stroke-width: 1; }
+        .lane-title { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+        .lane-eyebrow { font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; fill: var(--text-3); }
+        .lane-rule { stroke-width: 3; stroke-linecap: round; fill: none; }
+        /* Node */
+        .node { stroke-width: 1.5; }
+        .node--outlined { fill: #fff; }
+        .node-label { font-size: 12.5px; font-weight: 600; fill: var(--text); }
+        .node-label--inv { fill: #fff; }
+        .node-sublabel { font-size: 10.5px; font-weight: 400; fill: var(--text-2); }
+        .node-sublabel--inv { fill: rgba(255,255,255,.88); }
+        /* Role accents */
+        .role-nurse { stroke: var(--nurse); }
+        .role-mbbs  { stroke: var(--mbbs); }
+        .role-spec  { stroke: var(--spec); }
+        .role-ai    { stroke: var(--primary); }
+        .role-admin { stroke: var(--admin); }
+        .fill-nurse { fill: var(--nurse); }
+        .fill-mbbs  { fill: var(--mbbs); }
+        .fill-spec  { fill: var(--spec); }
+        .fill-ai    { fill: var(--primary); }
+        .fill-admin { fill: var(--admin); }
+        .text-nurse { fill: var(--nurse); }
+        .text-mbbs  { fill: var(--mbbs); }
+        .text-spec  { fill: var(--spec); }
+        .text-ai    { fill: var(--primary); }
+        .text-admin { fill: var(--admin); }
+        /* Decision */
+        .decision-node { fill: #fff; stroke: var(--border-strong); stroke-width: 1.6; stroke-linejoin: round; }
+        .decision-accent-nurse { stroke: var(--nurse); stroke-width: 1.4; fill: none; }
+        .decision-accent-spec  { stroke: var(--spec);  stroke-width: 1.4; fill: none; stroke-dasharray: 4 3; }
+        .decision-accent-low   { stroke: var(--low);   stroke-width: 1.4; fill: none; }
+        .decision-accent-ai    { stroke: var(--primary); stroke-width: 1.4; fill: none; }
+        .decision-label { font-size: 12.5px; font-weight: 700; fill: var(--text); }
+        /* Risk fills */
+        .risk-high-soft   { fill: var(--high-soft);   stroke: var(--high);   stroke-width: 1.6; }
+        .risk-medium-soft { fill: var(--medium-soft); stroke: var(--medium); stroke-width: 1.6; }
+        /* Connectors */
+        .connector { fill: none; stroke: var(--text-3); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+        .connector--risk-high   { stroke: var(--high);   stroke-width: 2;   fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .connector--risk-medium { stroke: var(--medium); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .connector--risk-low    { stroke: var(--low);    stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .connector--specialist  { stroke: var(--spec);   stroke-width: 1.8; stroke-dasharray: 6 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .connector--referral    { stroke: var(--spec);   stroke-width: 2;   fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .connector--prescribe   { stroke: var(--low);    stroke-width: 2;   fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .connector--nurse-route { stroke: var(--nurse);  stroke-width: 1.8; stroke-dasharray: 6 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        /* Connector labels */
+        .connector-label { font-size: 10.5px; font-weight: 700; fill: var(--text-2); letter-spacing: .04em; }
+        .connector-label--high     { fill: var(--high); }
+        .connector-label--medium   { fill: var(--medium-text); }
+        .connector-label--low      { fill: var(--success); }
+        .connector-label--spec     { fill: var(--spec); }
+        .connector-label--prescribe{ fill: var(--success); }
+        .connector-label--decision { fill: var(--text-2); }
+        .connector-label-bg { fill: #fff; }
+        /* Bands */
+        .band-completion { fill: var(--low-soft); stroke: var(--low); stroke-opacity: .35; stroke-width: 1; }
+        .band-admin      { fill: var(--admin-soft); stroke: var(--border); stroke-width: 1; }
+        .band-title { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+        .band-title--completion { fill: var(--success); }
+        .band-title--admin      { fill: var(--admin); }
+        .band-note { font-size: 10.5px; fill: var(--text-2); }
+        .band-footer { font-size: 10.5px; fill: var(--text-3); font-style: italic; }
+      </style>
+
+      <!-- Arrow markers -->
+      <marker id="arr"        markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L8,3 L0,6 Z" fill="#7a8494"/>
+      </marker>
+      <marker id="arrHigh"    markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L8,3 L0,6 Z" fill="#d64545"/>
+      </marker>
+      <marker id="arrMedium"  markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L8,3 L0,6 Z" fill="#e8963a"/>
+      </marker>
+      <marker id="arrLow"     markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L8,3 L0,6 Z" fill="#3a9d63"/>
+      </marker>
+      <marker id="arrSpec"    markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L8,3 L0,6 Z" fill="#5b21b6"/>
+      </marker>
+      <marker id="arrPrescribe" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L8,3 L0,6 Z" fill="#3a9d63"/>
+      </marker>
     </defs>
 
-    <!-- ============ LANE BACKGROUNDS (all equal: y 70..1630) ============ -->
-    <rect x="20"  y="70" width="224" height="1560" rx="10" fill="#eef7f6"/>
-    <rect x="260" y="70" width="224" height="1560" rx="10" fill="#eef2fb"/>
-    <rect x="500" y="70" width="224" height="1560" rx="10" fill="#fdf3e7"/>
-    <rect x="740" y="70" width="224" height="1560" rx="10" fill="#eef4f6"/>
-    <rect x="980" y="70" width="240" height="1560" rx="10" fill="#f4f1fa"/>
+    <g class="fc-svg">
 
-    <!-- completion + admin bands -->
-    <rect x="20" y="1660" width="1200" height="150" rx="10" fill="#f3f7f1"/>
-    <rect x="20" y="1830" width="1200" height="180" rx="10" fill="#f1f3f5"/>
+      <!-- ============================================================
+           LANE BACKGROUNDS (each lane sized to hold its nodes comfortably)
+           ============================================================ -->
+      <rect class="lane" x="20"   y="90" width="240" height="900" rx="12"/>
+      <rect class="lane" x="280"  y="90" width="240" height="600" rx="12"/>
+      <rect class="lane" x="540"  y="90" width="240" height="1200" rx="12"/>
+      <rect class="lane" x="800"  y="90" width="240" height="1280" rx="12"/>
+      <rect class="lane" x="1060" y="90" width="240" height="1100" rx="12"/>
 
-    <!-- lane titles -->
-    <text x="132"  y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#0f766e">INTAKE</text>
-    <text x="372"  y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#1c4fd6">AI TRIAGE</text>
-    <text x="612"  y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#b45309">WAITING ROOMS</text>
-    <text x="852"  y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#155e75">MBBS DOCTOR</text>
-    <text x="1100" y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#5b21b6">SPECIALIST</text>
+      <!-- ============================================================
+           LANE HEADERS (eyebrow + title + accent rule)
+           ============================================================ -->
+      <text class="lane-eyebrow" x="36"   y="60">Lane 01</text>
+      <text class="lane-title text-nurse" x="36"  y="78">Intake</text>
+      <line class="lane-rule" x1="36"  y1="86" x2="76"  y2="86" stroke="var(--nurse)"/>
 
-    <text x="620" y="1688" text-anchor="middle" font-size="13" font-weight="700" fill="#2f6b3a">COMPLETION</text>
-    <text x="620" y="1858" text-anchor="middle" font-size="13" font-weight="700" fill="#3a4353">ADMINISTRATION — WAITING-ROOM MANAGEMENT</text>
+      <text class="lane-eyebrow" x="296"  y="60">Lane 02</text>
+      <text class="lane-title text-ai"    x="296" y="78">AI Triage</text>
+      <line class="lane-rule" x1="296" y1="86" x2="336" y2="86" stroke="var(--primary)"/>
 
-    <!-- ============ INTAKE LANE (center 132) ============ -->
-    <rect x="82"  y="130" width="100" height="40" rx="8" fill="#0f766e"/><text x="132" y="155" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">Nurse / Intake</text>
-    <line x1="132" y1="170" x2="132" y2="196" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="72"  y="200" width="120" height="40" rx="8" fill="#fff" stroke="#0f766e" stroke-width="1.6"/><text x="132" y="225" text-anchor="middle" font-size="12.5" font-weight="600" fill="#0f766e">Patient Registration</text>
-    <line x1="132" y1="240" x2="132" y2="266" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="72"  y="270" width="120" height="40" rx="8" fill="#fff" stroke="#0f766e" stroke-width="1.6"/><text x="132" y="295" text-anchor="middle" font-size="12.5" font-weight="600" fill="#0f766e">Patient Information</text>
-    <line x1="132" y1="310" x2="132" y2="336" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="52"  y="340" width="160" height="46" rx="8" fill="#fff" stroke="#0f766e" stroke-width="1.6"/><text x="132" y="358" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f766e">Retinal Image Capture /</text><text x="132" y="374" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f766e">Upload</text>
-    <line x1="132" y1="386" x2="132" y2="416" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="82"  y="420" width="100" height="40" rx="8" fill="#0f766e"/><text x="132" y="445" text-anchor="middle" font-size="12.5" font-weight="600" fill="#fff">Submit Image</text>
-    <line x1="132" y1="460" x2="132" y2="487" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="66"  y="491" width="132" height="44" rx="22" fill="#e3f1f0" stroke="#0f766e" stroke-width="1.4" stroke-dasharray="4 3"/><text x="132" y="517" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f766e">AI Analysis Triggered</text>
-    <line x1="198" y1="513" x2="318" y2="440" stroke="#7a8494" stroke-width="1.8" marker-end="url(#arr)"/>
+      <text class="lane-eyebrow" x="556"  y="60">Lane 03</text>
+      <text class="lane-title" x="556" y="78" fill="#3a4353">Waiting Rooms</text>
+      <line class="lane-rule" x1="556" y1="86" x2="596" y2="86" stroke="#3a4353"/>
 
-    <!-- nurse waiting room + discharge desk -->
-    <rect x="52" y="600" width="160" height="46" rx="8" fill="#fff" stroke="#0f766e" stroke-width="1.6"/><text x="132" y="618" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0f766e">Nurse Waiting Room</text><text x="132" y="634" text-anchor="middle" font-size="10" fill="#5b6472">LOW risk · nurse review</text>
-    <line x1="132" y1="646" x2="132" y2="686" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="66" y="690" width="132" height="44" rx="8" fill="#0f766e"/><text x="132" y="716" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">Discharge Desk</text>
+      <text class="lane-eyebrow" x="816"  y="60">Lane 04</text>
+      <text class="lane-title text-mbbs" x="816" y="78">MBBS Doctor</text>
+      <line class="lane-rule" x1="816" y1="86" x2="856" y2="86" stroke="var(--mbbs)"/>
 
-    <!-- ============ AI TRIAGE LANE (center 372) ============ -->
-    <rect x="318" y="420" width="108" height="40" rx="8" fill="#1c4fd6"/><text x="372" y="445" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">AI Analysis</text>
-    <line x1="372" y1="460" x2="372" y2="496" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="308" y="500" width="128" height="40" rx="8" fill="#fff" stroke="#1c4fd6" stroke-width="1.6"/><text x="372" y="525" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1c4fd6">Risk Score</text>
-    <line x1="372" y1="540" x2="372" y2="566" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="308" y="570" width="128" height="40" rx="8" fill="#fff" stroke="#1c4fd6" stroke-width="1.6"/><text x="372" y="595" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1c4fd6">Risk Level</text>
-    <line x1="372" y1="610" x2="372" y2="636" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="308" y="640" width="128" height="44" rx="8" fill="#fff" stroke="#1c4fd6" stroke-width="1.6"/><text x="372" y="659" text-anchor="middle" font-size="11.5" font-weight="600" fill="#1c4fd6">Biomarkers /</text><text x="372" y="675" text-anchor="middle" font-size="11.5" font-weight="600" fill="#1c4fd6">Findings</text>
-    <line x1="372" y1="684" x2="372" y2="711" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="322" y="715" width="100" height="52" rx="26" fill="#fff" stroke="#3a4353" stroke-width="1.6" stroke-dasharray="5 3"/><text x="372" y="738" text-anchor="middle" font-size="11.5" font-weight="600" fill="#3a4353">Classify</text><text x="372" y="754" text-anchor="middle" font-size="11.5" font-weight="600" fill="#3a4353">Risk</text>
+      <text class="lane-eyebrow" x="1076" y="60">Lane 05</text>
+      <text class="lane-title text-spec" x="1076" y="78">Specialist</text>
+      <line class="lane-rule" x1="1076" y1="86" x2="1116" y2="86" stroke="var(--spec)"/>
 
-    <!-- risk fan-out arrows → waiting room boxes -->
-    <line x1="422" y1="725" x2="556" y2="810" stroke="#d64545" stroke-width="2" marker-end="url(#arrR)"/><text x="438" y="717" font-size="11" fill="#d64545" font-weight="700">HIGH</text>
-    <line x1="422" y1="742" x2="556" y2="878" stroke="#e8963a" stroke-width="1.8" marker-end="url(#arrM)"/><text x="438" y="768" font-size="11" fill="#b45309" font-weight="700">MEDIUM</text>
-    <line x1="422" y1="759" x2="212" y2="623" stroke="#3a9d63" stroke-width="1.8" marker-end="url(#arrG)"/><text x="286" y="668" font-size="11" fill="#2f6b3a" font-weight="700">LOW</text>
+      <!-- ============================================================
+           LANE 01 — INTAKE  (center x = 140, all nodes 200×56)
+           ============================================================ -->
+      <!-- Nurse / Intake -->
+      <rect class="node fill-nurse role-nurse" x="40" y="146" width="200" height="56" rx="8"/>
+      <text class="node-label node-label--inv" x="140" y="179" text-anchor="middle">Nurse / Intake</text>
+      <line class="connector" x1="140" y1="202" x2="140" y2="226" marker-end="url(#arr)"/>
 
-    <!-- ============ WAITING ROOM LANE (center 612) ============ -->
-    <rect x="556" y="790" width="112" height="58" rx="8" fill="#fff" stroke="#d64545" stroke-width="1.6"/><text x="612" y="810" text-anchor="middle" font-size="11.5" font-weight="700" fill="#d64545">HIGH RISK</text><text x="612" y="828" text-anchor="middle" font-size="10" fill="#5b6472">MBBS · or Spec. direct</text>
-    <line x1="612" y1="848" x2="612" y2="854" stroke="#7a8494" stroke-width="1.4" marker-end="url(#arr)"/>
-    <rect x="556" y="858" width="112" height="40" rx="8" fill="#fff" stroke="#e8963a" stroke-width="1.6"/><text x="612" y="878" text-anchor="middle" font-size="11" font-weight="700" fill="#b45309">MEDIUM RISK</text><text x="612" y="893" text-anchor="middle" font-size="10" fill="#5b6472">MBBS · after HIGH</text>
-    <line x1="612" y1="898" x2="612" y2="996" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="562" y="1000" width="100" height="40" rx="8" fill="#155e75"/><text x="612" y="1025" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">Select Patient</text>
-    <line x1="612" y1="1040" x2="612" y2="1066" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="556" y="1070" width="112" height="56" rx="8" fill="#fff" stroke="#155e75" stroke-width="1.6"/><text x="612" y="1090" text-anchor="middle" font-size="11.5" font-weight="600" fill="#155e75">Patient Panel</text><text x="612" y="1108" text-anchor="middle" font-size="10.5" fill="#5b6472">Image · AI · History</text>
-    <line x1="668" y1="1098" x2="808" y2="1090" stroke="#7a8494" stroke-width="1.8" marker-end="url(#arr)"/>
+      <!-- Patient Registration -->
+      <rect class="node node--outlined role-nurse" x="40" y="226" width="200" height="56" rx="8"/>
+      <text class="node-label text-nurse" x="140" y="259" text-anchor="middle">Patient Registration</text>
+      <line class="connector" x1="140" y1="282" x2="140" y2="306" marker-end="url(#arr)"/>
 
-    <!-- routing decision: specialist available? -->
-    <line x1="668" y1="810" x2="796" y2="786" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="796" y="760" width="112" height="52" rx="26" fill="#fff" stroke="#3a4353" stroke-width="1.6" stroke-dasharray="5 3"/><text x="852" y="782" text-anchor="middle" font-size="11.5" font-weight="600" fill="#3a4353">Specialist</text><text x="852" y="798" text-anchor="middle" font-size="11.5" font-weight="600" fill="#3a4353">available?</text>
-    <line x1="852" y1="812" x2="852" y2="1066" stroke="#3a4353" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arr)"/><text x="758" y="1000" font-size="10.5" fill="#3a4353" font-weight="600">No — MBBS</text>
-    <line x1="908" y1="786" x2="1025" y2="1238" stroke="#5b21b6" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrP)"/><text x="912" y="1032" font-size="11" fill="#5b21b6" font-weight="700">Yes — direct</text>
+      <!-- Patient Information -->
+      <rect class="node node--outlined role-nurse" x="40" y="306" width="200" height="56" rx="8"/>
+      <text class="node-label text-nurse" x="140" y="339" text-anchor="middle">Patient Information</text>
+      <line class="connector" x1="140" y1="362" x2="140" y2="386" marker-end="url(#arr)"/>
 
-    <!-- ============ MBBS LANE (center 852) ============ -->
-    <rect x="808" y="1070" width="88" height="40" rx="8" fill="#155e75"/><text x="852" y="1095" text-anchor="middle" font-size="12.5" font-weight="600" fill="#fff">MBBS Review</text>
-    <line x1="852" y1="1110" x2="852" y2="1136" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="792" y="1140" width="120" height="56" rx="8" fill="#fff" stroke="#155e75" stroke-width="1.6"/><text x="852" y="1160" text-anchor="middle" font-size="11.5" font-weight="600" fill="#155e75">Doctor Assessment</text><text x="852" y="1178" text-anchor="middle" font-size="11" fill="#5b6472">Notes · Prescription</text>
-    <line x1="852" y1="1196" x2="852" y2="1222" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="812" y="1226" width="80" height="52" rx="26" fill="#fff" stroke="#3a4353" stroke-width="1.6"/><text x="852" y="1252" text-anchor="middle" font-size="12" font-weight="700" fill="#3a4353">Decision</text>
-    <!-- Prescribe branch -->
-    <line x1="852" y1="1278" x2="852" y2="1306" stroke="#3a9d63" stroke-width="2" marker-end="url(#arrG)"/><text x="864" y="1296" font-size="11" fill="#2f6b3a" font-weight="700">Prescribe</text>
-    <rect x="800" y="1310" width="104" height="40" rx="8" fill="#fff" stroke="#3a9d63" stroke-width="1.6"/><text x="852" y="1335" text-anchor="middle" font-size="12" font-weight="600" fill="#2f6b3a">Prescription</text>
-    <!-- Refer branch → specialist -->
-    <line x1="892" y1="1252" x2="1025" y2="1246" stroke="#5b21b6" stroke-width="2" marker-end="url(#arrP)"/><text x="948" y="1234" font-size="11" fill="#5b21b6" font-weight="700">Refer</text>
-    <!-- down to completion -->
-    <line x1="852" y1="1350" x2="852" y2="1690" stroke="#7a8494" stroke-width="1.8" marker-end="url(#arr)"/>
+      <!-- Retinal Image Capture / Upload (two-line, taller box) -->
+      <rect class="node node--outlined role-nurse" x="40" y="386" width="200" height="72" rx="10"/>
+      <text class="node-label text-nurse" x="140" y="414" text-anchor="middle">Retinal Image Capture</text>
+      <text class="node-label text-nurse" x="140" y="434" text-anchor="middle">/ Upload</text>
+      <line class="connector" x1="140" y1="458" x2="140" y2="482" marker-end="url(#arr)"/>
 
-    <!-- ============ SPECIALIST LANE (center 1100) ============ -->
-    <rect x="1025" y="1226" width="150" height="40" rx="8" fill="#5b21b6"/><text x="1100" y="1251" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">Specialist Waiting Room</text>
-    <line x1="1100" y1="1266" x2="1100" y2="1286" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="1025" y="1290" width="150" height="44" rx="8" fill="#fff" stroke="#5b21b6" stroke-width="1.6"/><text x="1100" y="1309" text-anchor="middle" font-size="11" font-weight="600" fill="#5b21b6">Retinal Reading Screen</text><text x="1100" y="1325" text-anchor="middle" font-size="10.5" fill="#5b6472">Image · AI · History</text>
-    <line x1="1100" y1="1334" x2="1100" y2="1360" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="1030" y="1364" width="140" height="40" rx="8" fill="#fff" stroke="#5b21b6" stroke-width="1.6"/><text x="1100" y="1389" text-anchor="middle" font-size="11.5" font-weight="600" fill="#5b21b6">Specialist Assessment</text>
-    <line x1="1100" y1="1404" x2="1100" y2="1430" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="1030" y="1434" width="140" height="40" rx="8" fill="#fff" stroke="#5b21b6" stroke-width="1.6"/><text x="1100" y="1459" text-anchor="middle" font-size="11.5" font-weight="600" fill="#5b21b6">Prescription + Sign-Off</text>
-    <!-- down to completion -->
-    <line x1="1100" y1="1474" x2="1100" y2="1690" stroke="#7a8494" stroke-width="1.8" marker-end="url(#arr)"/>
+      <!-- Submit Image (filled) -->
+      <rect class="node fill-nurse role-nurse" x="40" y="482" width="200" height="56" rx="8"/>
+      <text class="node-label node-label--inv" x="140" y="515" text-anchor="middle">Submit Image</text>
 
-    <!-- ============ COMPLETION BAND ============ -->
-    <rect x="790"  y="1690" width="130" height="44" rx="8" fill="#fff" stroke="#2f6b3a" stroke-width="1.6"/><text x="855" y="1710" text-anchor="middle" font-size="11.5" font-weight="600" fill="#2f6b3a">Prescription</text><text x="855" y="1726" text-anchor="middle" font-size="11.5" font-weight="600" fill="#2f6b3a">Signed Off</text>
-    <line x1="920" y1="1712" x2="1050" y2="1712" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="1050" y="1690" width="130" height="44" rx="8" fill="#2f6b3a"/><text x="1115" y="1710" text-anchor="middle" font-size="11.5" font-weight="600" fill="#fff">Visit</text><text x="1115" y="1726" text-anchor="middle" font-size="11.5" font-weight="600" fill="#fff">Completed ✓</text>
-    <line x1="1115" y1="1734" x2="1115" y2="1756" stroke="#7a8494" stroke-width="1.6" marker-end="url(#arr)"/>
-    <rect x="1050" y="1760" width="130" height="40" rx="8" fill="#fff" stroke="#2f6b3a" stroke-width="1.6"/><text x="1115" y="1780" text-anchor="middle" font-size="11" font-weight="600" fill="#2f6b3a">History</text><text x="1115" y="1794" text-anchor="middle" font-size="11" font-weight="600" fill="#2f6b3a">Archived</text>
-    <!-- completed visits return to nurse discharge desk -->
-    <line x1="1050" y1="1780" x2="30" y2="1780" stroke="#0f766e" stroke-width="1.8" stroke-dasharray="7 5"/>
-    <line x1="30" y1="1780" x2="30" y2="712" stroke="#0f766e" stroke-width="1.8" stroke-dasharray="7 5"/>
-    <line x1="30" y1="712" x2="66" y2="712" stroke="#0f766e" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#arr)"/>
-    <text x="330" y="1773" font-size="11" fill="#0f766e" font-weight="600">Completed visits return to the Nurse discharge desk</text>
-    <text x="60" y="1745" font-size="11" fill="#5b6472">Archived → available as “Previous Visits” on future encounters.</text>
+      <!-- C1: Submit Image → AI Analysis (lane 1 → 2 via lane gutter at x=260) -->
+      <path class="connector" d="M240,510 L260,510 L260,174 L300,174" fill="none" marker-end="url(#arr)"/>
 
-    <!-- ============ ADMIN BAND ============ -->
-    <rect x="60"   y="1890" width="150" height="40" rx="8" fill="#fff" stroke="#6b7280" stroke-width="1.5"/><text x="135" y="1915" text-anchor="middle" font-size="12" font-weight="600" fill="#3a4353">Monitor Waiting Rooms</text>
-    <rect x="240"  y="1890" width="150" height="40" rx="8" fill="#fff" stroke="#6b7280" stroke-width="1.5"/><text x="315" y="1915" text-anchor="middle" font-size="12" font-weight="600" fill="#3a4353">Patient Queues / Status</text>
-    <rect x="420"  y="1890" width="150" height="40" rx="8" fill="#fff" stroke="#6b7280" stroke-width="1.5"/><text x="495" y="1915" text-anchor="middle" font-size="12" font-weight="600" fill="#3a4353">Manage Doctors</text>
-    <rect x="600"  y="1890" width="150" height="40" rx="8" fill="#fff" stroke="#6b7280" stroke-width="1.5"/><text x="675" y="1915" text-anchor="middle" font-size="12" font-weight="600" fill="#3a4353">Manage Specialists</text>
-    <rect x="780"  y="1890" width="170" height="40" rx="8" fill="#fff" stroke="#6b7280" stroke-width="1.5"/><text x="865" y="1915" text-anchor="middle" font-size="12" font-weight="600" fill="#3a4353">Help Route Patients</text>
-    <text x="620" y="1970" text-anchor="middle" font-size="11" fill="#8b93a3">Read-only monitoring &amp; routing support — clinical decisions always remain with doctors.</text>
+      <!-- Nurse Waiting Room (two-line, in Lane 01 below intake) -->
+      <rect class="node node--outlined role-nurse" x="40" y="600" width="200" height="72" rx="10"/>
+      <text class="node-label text-nurse" x="140" y="628" text-anchor="middle">Nurse Waiting Room</text>
+      <text class="node-sublabel" x="140" y="648" text-anchor="middle">LOW risk · nurse reviews &amp; routes</text>
 
-    <!-- footnote -->
-    <text x="620" y="2060" text-anchor="middle" font-size="12" fill="#5b6472">AI = triage &amp; decision support only · Clinicians make all final clinical decisions</text>
+      <!-- ============================================================
+           LANE 02 — AI TRIAGE  (center x = 400)
+           ============================================================ -->
+      <!-- AI Analysis (filled) -->
+      <rect class="node fill-ai role-ai" x="300" y="146" width="200" height="56" rx="8"/>
+      <text class="node-label node-label--inv" x="400" y="179" text-anchor="middle">AI Analysis</text>
+      <line class="connector" x1="400" y1="202" x2="400" y2="226" marker-end="url(#arr)"/>
+
+      <!-- Risk Score -->
+      <rect class="node node--outlined role-ai" x="300" y="226" width="200" height="56" rx="8"/>
+      <text class="node-label text-ai" x="400" y="259" text-anchor="middle">Risk Score</text>
+      <line class="connector" x1="400" y1="282" x2="400" y2="306" marker-end="url(#arr)"/>
+
+      <!-- Risk Level -->
+      <rect class="node node--outlined role-ai" x="300" y="306" width="200" height="56" rx="8"/>
+      <text class="node-label text-ai" x="400" y="339" text-anchor="middle">Risk Level</text>
+      <line class="connector" x1="400" y1="362" x2="400" y2="386" marker-end="url(#arr)"/>
+
+      <!-- Biomarkers / Findings (two-line) -->
+      <rect class="node node--outlined role-ai" x="300" y="386" width="200" height="72" rx="10"/>
+      <text class="node-label text-ai" x="400" y="414" text-anchor="middle">Biomarkers /</text>
+      <text class="node-label text-ai" x="400" y="434" text-anchor="middle">Findings</text>
+
+      <!-- Classify Risk (diamond decision, 220×110, cx=400, cy=528) -->
+      <polygon class="decision-node" points="290,528 400,473 510,528 400,583"/>
+      <polygon class="decision-accent-ai" points="302,528 400,485 498,528 400,571" fill="none"/>
+      <text class="decision-label" x="400" y="525" text-anchor="middle">Classify Risk</text>
+      <text class="node-sublabel" x="400" y="548" text-anchor="middle">→ HIGH · MEDIUM · LOW</text>
+
+      <!-- C3: Classify → HIGH RISK queue (right vertex 510,528 → gutter x=540 → left edge HIGH RISK at 560,768) -->
+      <path class="connector--risk-high" d="M510,528 L540,528 L540,768 L560,768" fill="none" marker-end="url(#arrHigh)"/>
+      <rect class="connector-label-bg" x="514" y="514" width="34" height="16" rx="3"/>
+      <text class="connector-label connector-label--high" x="531" y="526" text-anchor="middle">HIGH</text>
+
+      <!-- C4: Classify → MEDIUM RISK queue (right vertex 510,528 → gutter x=540 → down past HIGH RISK box → right to 560,858) -->
+      <path class="connector--risk-medium" d="M510,528 L540,528 L540,858 L560,858" fill="none" marker-end="url(#arrMedium)"/>
+      <rect class="connector-label-bg" x="514" y="688" width="50" height="16" rx="3"/>
+      <text class="connector-label connector-label--medium" x="539" y="700" text-anchor="middle">MEDIUM</text>
+
+      <!-- C2: Classify → Nurse Waiting Room (LOW) (left vertex 290,528 → gutter x=260 → right edge Nurse Waiting Room at 240,636) -->
+      <path class="connector--risk-low" d="M290,528 L260,528 L260,636 L240,636" fill="none" marker-end="url(#arrLow)"/>
+      <rect class="connector-label-bg" x="262" y="514" width="34" height="16" rx="3"/>
+      <text class="connector-label connector-label--low" x="279" y="526" text-anchor="middle">LOW</text>
+
+      <!-- ============================================================
+           LANE 03 — WAITING ROOMS  (center x = 660)
+           ============================================================ -->
+      <!-- HIGH RISK queue (red-soft) -->
+      <rect class="risk-high-soft" x="560" y="740" width="200" height="72" rx="10"/>
+      <text class="node-label" x="660" y="770" text-anchor="middle" fill="var(--high)" font-weight="700">HIGH RISK</text>
+      <text class="node-sublabel" x="660" y="789" text-anchor="middle">MBBS · or Specialist direct</text>
+
+      <!-- MEDIUM RISK queue (orange-soft) -->
+      <rect class="risk-medium-soft" x="560" y="830" width="200" height="72" rx="10"/>
+      <text class="node-label" x="660" y="860" text-anchor="middle" fill="var(--medium-text)" font-weight="700">MEDIUM RISK</text>
+      <text class="node-sublabel" x="660" y="879" text-anchor="middle">MBBS · after HIGH</text>
+
+      <!-- C5: HIGH RISK queue → Select Patient (bottom-center 660,812 → 660,990) -->
+      <path class="connector" d="M660,812 L660,990" fill="none" marker-end="url(#arr)"/>
+      <!-- C6: MEDIUM RISK queue → Select Patient (bottom-center 660,902 → 660,990) -->
+      <path class="connector" d="M660,902 L660,990" fill="none" marker-end="url(#arr)"/>
+
+      <!-- Select Patient (filled mbbs) -->
+      <rect class="node fill-mbbs role-mbbs" x="560" y="990" width="200" height="56" rx="8"/>
+      <text class="node-label node-label--inv" x="660" y="1023" text-anchor="middle">Select Patient</text>
+      <line class="connector" x1="660" y1="1046" x2="660" y2="1070" marker-end="url(#arr)"/>
+
+      <!-- Patient Panel (two-line) -->
+      <rect class="node node--outlined role-mbbs" x="560" y="1070" width="200" height="72" rx="10"/>
+      <text class="node-label text-mbbs" x="660" y="1098" text-anchor="middle">Patient Panel</text>
+      <text class="node-sublabel" x="660" y="1118" text-anchor="middle">AI · History</text>
+
+      <!-- ============================================================
+           LANE 04 — MBBS DOCTOR  (center x = 920)
+           ============================================================ -->
+      <!-- Specialist available? diamond (cx=920, cy=768, 220×110) -->
+      <polygon class="decision-node" points="810,768 920,713 1030,768 920,823"/>
+      <polygon class="decision-accent-spec" points="822,768 920,725 1018,768 920,811" fill="none"/>
+      <text class="decision-label" x="920" y="762" text-anchor="middle">Specialist</text>
+      <text class="decision-label" x="920" y="780" text-anchor="middle">available?</text>
+
+      <!-- C8: HIGH RISK queue → Specialist diamond (right edge 760,776 → left vertex 810,768) -->
+      <path class="connector" d="M760,776 L810,768" fill="none" marker-end="url(#arr)"/>
+
+      <!-- C9: YES → Specialist Waiting Room (right vertex 1030,768 → left edge Specialist Waiting Room 1080,776) -->
+      <path class="connector--specialist" d="M1030,768 L1080,776" fill="none" marker-end="url(#arrSpec)"/>
+      <rect class="connector-label-bg" x="1036" y="750" width="34" height="16" rx="3"/>
+      <text class="connector-label connector-label--spec" x="1053" y="762" text-anchor="middle">YES</text>
+
+      <!-- C10: NO → MBBS Review (bottom vertex 920,823 → down to 920,860 → left to 820,860 → down to 820,890) -->
+      <path class="connector" d="M920,823 L920,860 L820,860 L820,890" fill="none" marker-end="url(#arr)"/>
+      <rect class="connector-label-bg" x="868" y="846" width="28" height="16" rx="3"/>
+      <text class="connector-label connector-label--decision" x="882" y="858" text-anchor="middle">NO</text>
+
+      <!-- MBBS Review (filled mbbs) -->
+      <rect class="node fill-mbbs role-mbbs" x="820" y="890" width="200" height="56" rx="8"/>
+      <text class="node-label node-label--inv" x="920" y="923" text-anchor="middle">MBBS Review</text>
+      <line class="connector" x1="920" y1="946" x2="920" y2="970" marker-end="url(#arr)"/>
+
+      <!-- C7: Patient Panel → MBBS Review (right edge 760,1106 → gutter x=780 → left edge 820,918) -->
+      <path class="connector" d="M760,1106 L780,1106 L780,918 L820,918" fill="none" marker-end="url(#arr)"/>
+
+      <!-- Doctor Assessment (two-line) -->
+      <rect class="node node--outlined role-mbbs" x="820" y="970" width="200" height="72" rx="10"/>
+      <text class="node-label text-mbbs" x="920" y="998" text-anchor="middle">Doctor Assessment</text>
+      <text class="node-sublabel" x="920" y="1018" text-anchor="middle">Notes · Prescription</text>
+      <line class="connector" x1="920" y1="1042" x2="920" y2="1075" marker-end="url(#arr)"/>
+
+      <!-- Doctor Decision diamond (cx=920, cy=1130, 220×110) -->
+      <polygon class="decision-node" points="810,1130 920,1075 1030,1130 920,1185"/>
+      <polygon class="decision-accent-low" points="822,1130 920,1087 1018,1130 920,1173" fill="none"/>
+      <text class="decision-label" x="920" y="1124" text-anchor="middle">Doctor</text>
+      <text class="decision-label" x="920" y="1142" text-anchor="middle">Decision</text>
+
+      <!-- C11: PRESCRIBE → MBBS Prescription (bottom vertex 920,1185 → straight down to top edge of MBBS Prescription at 920,1230) -->
+      <path class="connector--prescribe" d="M920,1185 L920,1230" fill="none" marker-end="url(#arrPrescribe)"/>
+      <rect class="connector-label-bg" x="930" y="1198" width="74" height="16" rx="3"/>
+      <text class="connector-label connector-label--prescribe" x="967" y="1210" text-anchor="middle">PRESCRIBE</text>
+
+      <!-- MBBS Prescription (Lane 04, x=820, two-line tall) -->
+      <rect class="node node--outlined" x="820" y="1230" width="200" height="72" rx="10" stroke="var(--low)" stroke-width="1.6"/>
+      <text class="node-label" x="920" y="1258" text-anchor="middle" fill="var(--success)">Prescription</text>
+      <text class="node-sublabel" x="920" y="1278" text-anchor="middle" fill="var(--text-2)">MBBS outcome</text>
+
+      <!-- C12: REFER → Specialist Waiting Room (right vertex 1030,1130 → gutter x=1040 → up to 1040,776 → right to 1080,776) -->
+      <path class="connector--referral" d="M1030,1130 L1040,1130 L1040,776 L1080,776" fill="none" marker-end="url(#arrSpec)"/>
+      <rect class="connector-label-bg" x="1014" y="942" width="46" height="16" rx="3"/>
+      <text class="connector-label connector-label--spec" x="1037" y="954" text-anchor="middle">REFER</text>
+
+      <!-- ============================================================
+           LANE 05 — SPECIALIST  (center x = 1180)
+           ============================================================ -->
+      <!-- Specialist Waiting Room (filled purple, two-line) -->
+      <rect class="node fill-spec role-spec" x="1080" y="740" width="200" height="72" rx="10"/>
+      <text class="node-label node-label--inv" x="1180" y="770" text-anchor="middle">Specialist Waiting Room</text>
+      <text class="node-sublabel--inv" x="1180" y="789" text-anchor="middle">HIGH risk served first</text>
+      <line class="connector" x1="1180" y1="812" x2="1180" y2="836" marker-end="url(#arr)"/>
+
+      <!-- Retinal Reading Screen (two-line) -->
+      <rect class="node node--outlined role-spec" x="1080" y="836" width="200" height="72" rx="10"/>
+      <text class="node-label text-spec" x="1180" y="866" text-anchor="middle">Retinal Reading Screen</text>
+      <text class="node-sublabel" x="1180" y="885" text-anchor="middle">Image · AI · History</text>
+      <line class="connector" x1="1180" y1="908" x2="1180" y2="932" marker-end="url(#arr)"/>
+
+      <!-- Specialist Assessment -->
+      <rect class="node node--outlined role-spec" x="1080" y="932" width="200" height="56" rx="8"/>
+      <text class="node-label text-spec" x="1180" y="965" text-anchor="middle">Specialist Assessment</text>
+      <line class="connector" x1="1180" y1="988" x2="1180" y2="1012" marker-end="url(#arr)"/>
+
+      <!-- Prescription + Sign-Off -->
+      <rect class="node node--outlined role-spec" x="1080" y="1012" width="200" height="56" rx="8"/>
+      <text class="node-label text-spec" x="1180" y="1045" text-anchor="middle">Prescription + Sign-Off</text>
+
+      <!-- ============================================================
+           NURSE-ROUTING CROSS-LANE CONNECTORS
+           ============================================================ -->
+      <!-- Nurse Decision diamond (cx=140, cy=790, 220×110) -->
+      <polygon class="decision-node" points="30,790 140,735 250,790 140,845"/>
+      <polygon class="decision-accent-nurse" points="42,790 140,747 238,790 140,833" fill="none"/>
+      <text class="decision-label" x="140" y="784" text-anchor="middle">Nurse Decision</text>
+      <text class="decision-label" x="140" y="802" text-anchor="middle">Route</text>
+
+      <!-- C13: Nurse Decision MEDIUM/LOW → Select Patient (bottom vertex 140,845 → down to 140,1018 → right to 560,1018) -->
+      <path class="connector--nurse-route" d="M140,845 L140,1018 L560,1018" fill="none" marker-end="url(#arr)"/>
+      <rect class="connector-label-bg" x="280" y="1006" width="200" height="20" rx="4"/>
+      <text class="connector-label connector-label--decision" x="380" y="1020" text-anchor="middle">MEDIUM / LOW → MBBS queue</text>
+
+      <!-- C14: Nurse Decision HIGH → Specialist Waiting Room (right vertex 250,790 → gutter x=260 → up to 260,720 → right at corridor y=720 to x=1060 → down to 1060,776 → right to 1080,776) -->
+      <path class="connector--specialist" d="M250,790 L260,790 L260,720 L1060,720 L1060,776 L1080,776" fill="none" marker-end="url(#arrSpec)"/>
+      <rect class="connector-label-bg" x="540" y="710" width="460" height="20" rx="4"/>
+      <text class="connector-label connector-label--spec" x="770" y="724" text-anchor="middle">HIGH → Specialist (served first) · MEDIUM/LOW if requested</text>
+
+      <!-- ============================================================
+           DRAIN INTO COMPLETION BAND  (band starts at y=1430)
+           ============================================================ -->
+      <!-- D1: MBBS Prescription → Prescription Signed Off (bottom 920,1302 → down to 920,1410 → left to 400,1410 → down to 400,1462) -->
+      <path class="connector" d="M920,1302 L920,1410 L400,1410 L400,1462" fill="none" marker-end="url(#arr)"/>
+
+      <!-- D2: Specialist Sign-Off → Visit Completed (bottom 1180,1068 → down to 1180,1410 → left to 640,1410 → down to 640,1462) -->
+      <path class="connector" d="M1180,1068 L1180,1410 L640,1410 L640,1462" fill="none" marker-end="url(#arr)"/>
+
+      <!-- ============================================================
+           COMPLETION BAND  (y 1430 — 1540, height 110)
+           ============================================================ -->
+      <rect class="band-completion" x="20" y="1430" width="1280" height="110" rx="12"/>
+
+      <text class="band-title band-title--completion" x="40" y="1455">Completion</text>
+      <text class="band-note" x="40" y="1475">Patient discharged at sign-off.</text>
+      <text class="band-note" x="40" y="1493" font-style="italic">Archived → "Previous Visits" on future encounters.</text>
+
+      <!-- Prescription Signed Off (outlined green) -->
+      <rect class="node node--outlined" x="300" y="1462" width="200" height="60" rx="10" stroke="var(--low)" stroke-width="1.6"/>
+      <text class="node-label" x="400" y="1487" text-anchor="middle" fill="var(--success)">Prescription</text>
+      <text class="node-label" x="400" y="1507" text-anchor="middle" fill="var(--success)">Signed Off</text>
+
+      <!-- connector Signed Off → Visit Completed -->
+      <line class="connector" x1="500" y1="1492" x2="540" y2="1492" marker-end="url(#arr)"/>
+
+      <!-- Visit Completed (filled green) -->
+      <rect x="540" y="1462" width="200" height="60" rx="10" fill="var(--success)" stroke="var(--success)" stroke-width="1.6"/>
+      <text class="node-label node-label--inv" x="640" y="1487" text-anchor="middle" font-weight="700">Visit</text>
+      <text class="node-label node-label--inv" x="640" y="1507" text-anchor="middle" font-weight="700">Completed ✓</text>
+
+      <!-- connector Visit Completed → History Archived -->
+      <line class="connector" x1="640" y1="1522" x2="640" y2="1540" marker-end="url(#arr)"/>
+
+      <!-- History Archived (outlined green, below Visit Completed) -->
+      <rect class="node node--outlined" x="540" y="1540" width="200" height="40" rx="8" stroke="var(--low)" stroke-width="1.6"/>
+      <text class="node-label" x="640" y="1565" text-anchor="middle" fill="var(--success)">History Archived</text>
+
+      <!-- ============================================================
+           ADMINISTRATION BAND  (y 1610 — 1690, height 80)
+           ============================================================ -->
+      <rect class="band-admin" x="20" y="1610" width="1280" height="80" rx="12"/>
+
+      <text class="band-title band-title--admin" x="40" y="1635">Administration — Waiting-Room Management</text>
+      <text class="band-note" x="40" y="1655">Read-only monitoring &amp; routing support.</text>
+      <text class="band-footer" x="40" y="1673">Clinical decisions always remain with doctors.</text>
+
+      <!-- Admin cards centered in band, evenly distributed -->
+      <rect class="node node--outlined role-admin" x="540" y="1622" width="130" height="50" rx="8"/>
+      <text class="node-label text-admin" x="605" y="1643" text-anchor="middle">Monitor</text>
+      <text class="node-label text-admin" x="605" y="1661" text-anchor="middle">Waiting Rooms</text>
+
+      <rect class="node node--outlined role-admin" x="690" y="1622" width="130" height="50" rx="8"/>
+      <text class="node-label text-admin" x="755" y="1643" text-anchor="middle">Patient</text>
+      <text class="node-label text-admin" x="755" y="1661" text-anchor="middle">Queues</text>
+
+      <rect class="node node--outlined role-admin" x="840" y="1622" width="130" height="50" rx="8"/>
+      <text class="node-label text-admin" x="905" y="1643" text-anchor="middle">Manage</text>
+      <text class="node-label text-admin" x="905" y="1661" text-anchor="middle">Doctors</text>
+
+      <rect class="node node--outlined role-admin" x="990" y="1622" width="130" height="50" rx="8"/>
+      <text class="node-label text-admin" x="1055" y="1643" text-anchor="middle">Manage</text>
+      <text class="node-label text-admin" x="1055" y="1661" text-anchor="middle">Specialists</text>
+
+      <rect class="node node--outlined role-admin" x="1140" y="1622" width="130" height="50" rx="8"/>
+      <text class="node-label text-admin" x="1205" y="1643" text-anchor="middle">Help Route</text>
+      <text class="node-label text-admin" x="1205" y="1661" text-anchor="middle">Patients</text>
+
+    </g>
   </svg>
+    </div>
   </section>
 
   <p class="flow-note">
-    <strong>How to read this diagram:</strong> A nurse registers the patient and captures a retinal image. The AI analyzes the image and produces a risk score, risk level (HIGH / MEDIUM / LOW) and biomarker findings — used for <em>triage and decision support only</em>. Each care level has its own waiting room: HIGH and MEDIUM risk patients wait in the MBBS queue (HIGH cases are served first), while LOW risk patients go to the Nurse waiting room. If a specialist is available, HIGH risk patients route <em>directly</em> to them (in-person, Teams or WhatsApp) without an MBBS visit. The doctor opens the patient panel, reviews image, AI findings and previous visits, then either prescribes or refers to a specialist; the specialist reviews the case on the retinal reading screen, completes an assessment and signs off the prescription. Completed visits return to the Nurse discharge desk, then are archived to history. Administration monitors queues and staff to keep the waiting rooms moving.
+    <strong>How to read this diagram:</strong> A nurse registers the patient and captures a retinal image. The AI analyzes the image and produces a risk score, risk level (HIGH / MEDIUM / LOW) and biomarker findings — used for <em>triage and decision support only</em>. HIGH and MEDIUM risk patients wait in the MBBS queue (HIGH cases are served first), while LOW risk patients go to the Nurse waiting room where the nurse reviews the case and routes it: MEDIUM/LOW → MBBS, HIGH → Specialist. If a patient requests a specialist, the nurse (or the MBBS doctor) can send MEDIUM/LOW cases directly to the specialist — HIGH cases in the specialist queue are always served first. The doctor opens the patient panel and reviews the AI assessment, biomarkers and previous visits (the raw image is reserved for the specialist's reading screen), then either prescribes and discharges, or refers to a specialist; the specialist reviews the case on the retinal reading screen, completes an assessment and signs off the prescription. Sign-off completes the visit and discharges the patient; the visit is then archived to history. Administration monitors queues and staff to keep the waiting rooms moving.
   </p>
 </body>
 </html>

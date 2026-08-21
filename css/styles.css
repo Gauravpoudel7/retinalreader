@@ -300,3 +300,86 @@ a:hover { text-decoration: underline; }
   .form-grid { grid-template-columns: 1fr; }
   .content { padding: 16px; }
 }
+
+/* ---------- Patient card grid (MBBS / Specialist dashboards) ---------- */
+.patient-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+.patient-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 6px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform .12s ease, box-shadow .15s ease, border-color .15s ease;
+  display: flex; flex-direction: column; gap: 10px;
+  min-height: 220px;
+  font-family: inherit;
+  text-align: left;
+  color: var(--text);
+}
+.patient-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.patient-card.risk-border-high   { border-left-color: var(--high);   }
+.patient-card.risk-border-medium { border-left-color: var(--medium); }
+.patient-card.risk-border-low    { border-left-color: var(--low);    }
+
+.patient-card .pc-pos {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  font-weight: 700; font-size: 14px; color: var(--text-2);
+}
+.patient-card .pc-name {
+  font-size: 22px; font-weight: 700; letter-spacing: -.01em;
+  color: var(--text); line-height: 1.2; margin: 0;
+}
+.patient-card .pc-meta {
+  font-size: 13px; color: var(--text-2); line-height: 1.45;
+}
+.patient-card .pc-meta .mono { color: var(--text-3); }
+.patient-card .pc-foot {
+  margin-top: auto; display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+}
+.patient-card .pc-foot .pill { font-size: 11.5px; }
+.patient-card .pc-wait {
+  font-size: 12px; color: var(--text-3);
+}
+@media (max-width: 900px) {
+  .patient-card-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .patient-card-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- Queue summary + empty slots ---------- */
+.queue-summary {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px; font-size: 13px; color: var(--text-2);
+}
+.queue-summary .count {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 999px; padding: 4px 10px; font-weight: 600; color: var(--text);
+}
+.queue-summary .queue-link {
+  color: var(--primary); font-weight: 600;
+}
+.patient-card-slot--empty {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  display: flex; align-items: center; justify-content: center;
+  min-height: 220px;
+  color: var(--text-3); font-size: 13px;
+  position: relative;
+}
+.patient-card-slot--empty::before {
+  content: ""; position: absolute; inset: 14px;
+  border: 1px dashed var(--border); border-radius: 10px;
+  opacity: .6;
+}
+.patient-card-slot--empty span { position: relative; z-index: 1; }

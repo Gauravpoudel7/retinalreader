@@ -7,7 +7,7 @@
      Teams / WhatsApp), otherwise → MBBS queue
    - MEDIUM risk → MBBS queue (served after HIGH cases)
    - LOW   risk → Nurse queue
-   - Completed visits return to the Nurse / discharge desk
+   - Completed visits are discharged by the doctor (MBBS / Specialist)
    ============================================================ */
 
 var App = {
@@ -168,10 +168,7 @@ function mbbsQueue() {
   return D.byRisk(D.patients.filter(function (p) { return p.routedTo === "mbbs" && p.status !== "completed"; }));
 }
 function specQueue() {
-  return D.patients.filter(function (p) { return p.routedTo === "specialist" && p.status !== "completed"; });
-}
-function dischargeQueue() {
-  return D.patients.filter(function (p) { return p.status === "completed" && !p.discharged; });
+  return D.byRisk(D.patients.filter(function (p) { return p.routedTo === "specialist" && p.status !== "completed"; }));
 }
 
 function openPatient(p) {
@@ -411,6 +408,59 @@ function roleScreen(body) {
 
 /* ---------------- shared pieces ---------------- */
 
+var MAX_CARDS = 6;
+var SLOT_LABELS = ["A", "B", "C", "D", "E", "F"];
+
+function patientCard(p, pos) {
+  var riskClass = p.risk === "HIGH" ? "risk-border-high"
+    : p.risk === "MEDIUM" ? "risk-border-medium" : "risk-border-low";
+  return '<button class="patient-card ' + riskClass + '" data-open="' + p.id + '">' +
+    '<div class="pc-pos">' + pos + '</div>' +
+    '<h3 class="pc-name">' + esc(p.name) + '</h3>' +
+    '<div class="pc-meta">' + esc(p.condition) + '</div>' +
+    '<div class="pc-meta"><span class="mono">' + esc(p.patientId) + '</span> · Visit #' + p.visitNo + '</div>' +
+    '<div class="pc-foot">' + riskPill(p.risk) + scoreBadge(p.score) + '</div>' +
+    '<div class="pc-wait">' + p.waitMin + ' min waiting</div>' +
+    '</button>';
+}
+
+function bindPatientCards(root) {
+  root.querySelectorAll(".patient-card[data-open]").forEach(function (card) {
+    card.addEventListener("click", function () {
+      var id = card.getAttribute("data-open");
+      var p = D.pat(id);
+      if (!p) return;
+      openPatient(p);
+      if (p.status === "completed") { navigate("#/patient/" + id); return; }
+      if (p.routedTo === "specialist" && (App.role === "specialist" || p.directConsult)) {
+        navigate("#/reading/" + id); return;
+      }
+      navigate("#/patient/" + id);
+    });
+  });
+}
+
+function queueGrid(queue) {
+  var visible = queue.slice(0, MAX_CARDS);
+  var cards = visible.map(function (p, i) { return patientCard(p, SLOT_LABELS[i]); }).join("");
+  var empty = "";
+  for (var i = visible.length; i < MAX_CARDS; i++) {
+    empty += '<div class="patient-card-slot--empty"><span>' +
+      (queue.length === 0 ? "—" : "Slot " + SLOT_LABELS[i] + " · awaiting") + '</span></div>';
+  }
+  return { cards: cards, empty: empty, visible: visible, overflow: Math.max(0, queue.length - MAX_CARDS) };
+}
+
+function queueSummary(label, queue, overflowNote) {
+  return '<div class="queue-summary">' +
+    '<span class="count">' + queue.length + ' in ' + label + '</span>' +
+    (queue.length > MAX_CARDS
+      ? '<span class="muted">Showing top ' + MAX_CARDS + ' · </span>' +
+        '<a class="queue-link" href="#/waiting">View ' + (queue.length - MAX_CARDS) + ' more in waiting room →</a>'
+      : '<span class="muted">' + overflowNote + '</span>') +
+    '</div>';
+}
+
 function patientRow(p, pos, extra) {
   return '<div class="patient-row" data-open="' + p.id + '">' +
     '<span class="pos">' + pos + '</span>' +
@@ -466,55 +516,37 @@ function pageHead(title, sub, actions) {
 
 function nurseScreen(c) {
   var nq = nurseQueue();
-  var dq = dischargeQueue();
+  var completed = D.patients.filter(function (p) { return p.status === "completed"; });
   var rows = nq.map(function (p, i) { return patientRow(p, i + 1); }).join("");
-  var dRows = dq.map(function (p, i) {
-    return '<div class="patient-row" data-open="' + p.id + '">' +
-      '<span class="pos">' + (i + 1) + '</span>' +
-      '<div class="who"><div class="name">' + esc(p.name) + ' <span class="muted small mono">' + esc(p.patientId) + '</span></div>' +
-      '<div class="meta">Visit #' + p.visitNo + ' · signed off by ' + esc((p.history && p.history[p.history.length - 1] || {}).by || "—") + '</div></div>' +
-      '<div class="stat">' + riskPill(p.risk) + ' ' + scoreBadge(p.score) + '</div>' +
-      '<div><span class="pill pill-ok">Returned</span></div>' +
-      '</div>';
-  }).join("");
 
   c.innerHTML =
-    pageHead("Nurse / Intake", "Register patients, run AI triage, manage the low-risk queue and discharge desk",
+    pageHead("Nurse / Intake", "Register patients, run AI triage and route each patient to the right doctor",
       '<a class="btn btn-primary" href="#/nurse/new">+ New Patient</a>') +
     '<div class="grid grid-4 mb-16">' +
     '<div class="stat-tile"><div class="label">Nurse queue (low risk)</div><div class="value" style="color:var(--nurse)">' + nq.length + '</div></div>' +
-    '<div class="stat-tile"><div class="label">Awaiting discharge</div><div class="value" style="color:var(--success)">' + dq.length + '</div></div>' +
     '<div class="stat-tile"><div class="label">Awaiting MBBS</div><div class="value">' + mbbsQueue().length + '</div></div>' +
     '<div class="stat-tile"><div class="label">High risk flagged</div><div class="value" style="color:var(--high)">' + D.patients.filter(function (p) { return p.risk === "HIGH" && p.status !== "completed"; }).length + '</div></div>' +
+    '<div class="stat-tile"><div class="label">Completed today</div><div class="value" style="color:var(--success)">' + completed.length + '</div></div>' +
     '</div>' +
     '<div class="grid grid-2">' +
     '<div>' +
-    '<div class="card card-pad mb-16"><h3 class="card-title">Nurse waiting room — low risk</h3>' +
+    '<div class="card card-pad mb-16"><h3 class="card-title">Nurse waiting room — route each patient</h3>' +
     (rows || '<div class="empty">No low-risk patients waiting</div>') + '</div>' +
-    '<div class="card card-pad"><h3 class="card-title">Discharge desk — completed visits return here</h3>' +
-    (dRows || '<div class="empty">No completed visits awaiting discharge</div>') +
-    '<div class="mt-8">' + (dq.length ? '<button class="btn btn-success btn-sm" id="dischargeAll">Discharge all returned patients</button>' : "") + '</div>' +
-    '</div>' +
     '</div>' +
     '<div>' +
     '<div class="card card-pad mb-16"><h3 class="card-title">Patient search</h3>' +
     '<div class="field"><input class="input" id="nurseSearch" placeholder="Search by name or patient ID…"></div>' +
     '<div id="nurseSearchResults"><div class="empty">Type to search registered patients</div></div></div>' +
     '<div class="card card-pad"><h3 class="card-title">Routing overview</h3>' +
-    '<div class="finding"><div class="sev">' + riskPill("HIGH") + '</div><div>Specialist available → direct consult · else MBBS</div></div>' +
-    '<div class="finding"><div class="sev">' + riskPill("MEDIUM") + '</div><div>MBBS queue — served after HIGH cases</div></div>' +
-    '<div class="finding"><div class="sev">' + riskPill("LOW") + '</div><div>Nurse queue — review, discharge or escalate</div></div>' +
+    '<div class="finding"><div class="sev">' + riskPill("HIGH") + '</div><div>Specialist (served first) · else MBBS</div></div>' +
+    '<div class="finding"><div class="sev">' + riskPill("MEDIUM") + '</div><div>MBBS — or Specialist if the patient requested</div></div>' +
+    '<div class="finding"><div class="sev">' + riskPill("LOW") + '</div><div>Nurse review — route to MBBS or Specialist</div></div>' +
+    '<div class="finding"><div class="sev">📌</div><div>Patient requested a specialist → can be sent directly (MEDIUM/LOW served after HIGH)</div></div>' +
+    '<div class="finding"><div class="sev">✓</div><div>Discharge is done by the MBBS doctor or specialist — not the nurse</div></div>' +
     '</div>' +
     '</div>' +
     '</div>';
 
-  if (c.querySelector("#dischargeAll")) {
-    c.querySelector("#dischargeAll").addEventListener("click", function () {
-      dq.forEach(function (p) { p.discharged = true; });
-      toast(dq.length + " patients discharged");
-      render();
-    });
-  }
   var si = c.querySelector("#nurseSearch");
   si.addEventListener("input", function () {
     var q = si.value.trim().toLowerCase();
@@ -550,6 +582,9 @@ function nurseNewScreen(c) {
     '<div class="field"><label>Age *</label><input class="input" id="npAge" type="number" min="1" max="120" placeholder="e.g. 60"></div>' +
     '<div class="field"><label>Patient ID</label><input class="input" id="npId" placeholder="Auto-assigned (RP-10249)"></div>' +
     '<div class="field"><label>Contact</label><input class="input" id="npContact" placeholder="+91 …"></div>' +
+    '<div class="field full" style="display:flex;align-items:center;gap:8px;margin-top:4px">' +
+    '<input type="checkbox" id="npReqSpec" style="width:16px;height:16px;accent-color:var(--spec)">' +
+    '<label for="npReqSpec" style="margin:0;cursor:pointer">Patient requested specialist consultation</label></div>' +
     '<div class="field full"><label>Additional information (reason for visit)</label>' +
     '<textarea class="textarea" id="npCond" placeholder="e.g. Diabetic retinopathy screening"></textarea></div>' +
     '</div>' +
@@ -568,9 +603,11 @@ function nurseNewScreen(c) {
     '<div class="finding"><div class="sev">①</div><div>Patient registered at intake desk</div></div>' +
     '<div class="finding"><div class="sev">②</div><div>Retinal image captured or uploaded</div></div>' +
     '<div class="finding"><div class="sev">③</div><div>AI triage model scores risk and extracts biomarkers</div></div>' +
-    '<div class="finding"><div class="sev">④</div><div>' + riskPill("HIGH") + ' → specialist (if available) or MBBS</div></div>' +
-    '<div class="finding"><div class="sev">⑤</div><div>' + riskPill("MEDIUM") + ' → MBBS queue after HIGH cases</div></div>' +
-    '<div class="finding"><div class="sev">⑥</div><div>' + riskPill("LOW") + ' → nurse queue</div></div>' +
+    '<div class="finding"><div class="sev">④</div><div>' + riskPill("HIGH") + ' → specialist (served first) or MBBS</div></div>' +
+    '<div class="finding"><div class="sev">⑤</div><div>' + riskPill("MEDIUM") + ' → MBBS queue after HIGH · specialist if requested</div></div>' +
+    '<div class="finding"><div class="sev">⑥</div><div>' + riskPill("LOW") + ' → nurse queue — nurse routes to MBBS or specialist</div></div>' +
+    '<div class="finding"><div class="sev">📌</div><div>Patient requested a specialist → doctor can send directly; HIGH cases stay ahead</div></div>' +
+    '<div class="finding"><div class="sev">✓</div><div>Discharge happens at the MBBS or specialist sign-off</div></div>' +
     '<div class="mt-16"><span class="pill pill-info">Demo note</span> ' +
     '<span class="small muted">AI output is simulated for demonstration. It supports — never replaces — clinical judgement.</span></div>' +
     '</div>' +
@@ -626,6 +663,7 @@ function nurseNewScreen(c) {
       condition: c.querySelector("#npCond").value.trim() || "Retinal screening",
       risk: risk, score: score, waitMin: 0,
       status: "queued", routedTo: null, assignedTo: null,
+      requestedSpec: c.querySelector("#npReqSpec").checked,
       visitNo: 1,
       findings: findings,
       biomarkers: bio,
@@ -716,7 +754,7 @@ function waitingScreen(c) {
   var mq = mbbsQueue();
   var sq = specQueue();
   var nq = nurseQueue();
-  var dq = dischargeQueue();
+  var completed = D.patients.filter(function (p) { return p.status === "completed"; });
   var avail = specialistsAvailable();
 
   c.innerHTML =
@@ -726,7 +764,7 @@ function waitingScreen(c) {
     '<div class="stat-tile"><div class="label">MBBS queue</div><div class="value" style="color:var(--mbbs)">' + mq.length + '</div></div>' +
     '<div class="stat-tile"><div class="label">Specialist queue</div><div class="value" style="color:var(--spec)">' + sq.length + '</div></div>' +
     '<div class="stat-tile"><div class="label">Nurse queue</div><div class="value" style="color:var(--nurse)">' + nq.length + '</div></div>' +
-    '<div class="stat-tile"><div class="label">Awaiting discharge</div><div class="value" style="color:var(--success)">' + dq.length + '</div></div>' +
+    '<div class="stat-tile"><div class="label">Completed today</div><div class="value" style="color:var(--success)">' + completed.length + '</div></div>' +
     '</div>' +
     '<div class="card card-pad mb-16" style="border-left:4px solid var(--spec)">' +
     '<div class="flex align-center flex-wrap">' +
@@ -752,7 +790,7 @@ function waitingScreen(c) {
     '<div class="wait-section-head"><span class="bar" style="background:#0f766e"></span>' +
     '<h3 style="color:#0f766e">Nurse Waiting Room</h3>' +
     '<span class="wait-count">' + nq.length + '</span>' +
-    '<span class="small muted" style="margin-left:auto">LOW risk · routine</span></div>' +
+    '<span class="small muted" style="margin-left:auto">LOW risk · route from here</span></div>' +
     (nq.length
       ? nq.map(function (p, i) { return patientRow(p, i + 1); }).join("")
       : '<div class="empty">Nurse queue is clear</div>') +
@@ -762,7 +800,7 @@ function waitingScreen(c) {
     '<div class="wait-section-head"><span class="bar" style="background:#5b21b6"></span>' +
     '<h3 style="color:#5b21b6">Specialist Waiting Room</h3>' +
     '<span class="wait-count">' + sq.length + '</span>' +
-    '<span class="small muted" style="margin-left:auto">Direct consults + referrals</span></div>' +
+    '<span class="small muted" style="margin-left:auto">HIGH first · direct + referrals + requests</span></div>' +
     (sq.length
       ? sq.map(function (p, i) {
         var extra = p.directConsult
@@ -782,50 +820,14 @@ function waitingScreen(c) {
 
 function mbbsScreen(c) {
   var queue = mbbsQueue();
-  var referred = D.patients.filter(function (p) { return p.routedTo === "specialist" && p.status !== "completed" && !p.directConsult; });
-  var completed = D.patients.filter(function (p) { return p.status === "completed"; });
-  var highCount = queue.filter(function (p) { return p.risk === "HIGH"; }).length;
-  var medCount = queue.filter(function (p) { return p.risk === "MEDIUM"; }).length;
+  var grid = queueGrid(queue);
 
   c.innerHTML =
     pageHead("MBBS Dashboard", "Dr. Anjali Sharma · Morning shift",
       '<a class="btn btn-secondary" href="#/waiting">Waiting Room</a>') +
-    '<div class="grid grid-4 mb-16">' +
-    '<div class="stat-tile"><div class="label">High risk (serve first)</div><div class="value" style="color:var(--high)">' + highCount + '</div></div>' +
-    '<div class="stat-tile"><div class="label">Medium risk</div><div class="value" style="color:#b45309">' + medCount + '</div></div>' +
-    '<div class="stat-tile"><div class="label">Today\u2019s patients</div><div class="value">' + D.patients.length + '</div></div>' +
-    '<div class="stat-tile"><div class="label">Referrals to specialist</div><div class="value" style="color:var(--spec)">' + referred.length + '</div></div>' +
-    '</div>' +
-    '<div class="card card-pad mb-16">' +
-    '<div class="wait-section-head"><span class="bar" style="background:#155e75"></span>' +
-    '<h3 style="color:#155e75">Your queue — HIGH risk first, then MEDIUM</h3>' +
-    '<span class="wait-count">' + queue.length + '</span></div>' +
-    (queue.length
-      ? queue.map(function (p, i) { return patientRow(p, i + 1); }).join("")
-      : '<div class="empty">Queue is clear — finish HIGH cases before MEDIUM</div>') +
-    '</div>' +
-    '<div class="grid grid-2">' +
-    '<div class="card card-pad"><h3 class="card-title">Referrals made</h3>' +
-    (referred.length
-      ? referred.map(function (p) {
-        return '<div class="patient-row" data-open="' + p.id + '">' +
-          '<div class="who"><div class="name">' + esc(p.name) + '</div>' +
-          '<div class="meta">→ ' + esc((p.referral || {}).reason || "Specialist review") + ' · to ' + esc((p.referral && D.spec(p.assignedTo)) ? D.spec(p.assignedTo).name : "") + '</div></div>' +
-          '<div>' + statusPill(p) + '</div></div>';
-      }).join("")
-      : '<div class="empty">No referrals yet</div>') +
-    '</div>' +
-    '<div class="card card-pad"><h3 class="card-title">Completed today → returned to nurse</h3>' +
-    (completed.length
-      ? completed.map(function (p) {
-        return '<div class="patient-row" data-open="' + p.id + '">' +
-          '<div class="who"><div class="name">' + esc(p.name) + '</div><div class="meta">Visit #' + p.visitNo + ' · ' + (p.discharged ? "discharged" : "awaiting discharge at nurse desk") + '</div></div>' +
-          '<div>' + statusPill(p) + '</div></div>';
-      }).join("")
-      : '<div class="empty">No visits completed yet</div>') +
-    '</div>' +
-    '</div>';
-  bindPatientRows(c);
+    queueSummary("MBBS queue", queue, "HIGH first, then MEDIUM") +
+    '<div class="patient-card-grid">' + grid.cards + grid.empty + '</div>';
+  bindPatientCards(c);
 }
 
 /* ---------------- screen: patient panel ---------------- */
@@ -850,25 +852,36 @@ function patientPanelScreen(c, seg) {
   var actions = "";
   if (isDone) {
     actions = '<div class="success-banner"><span class="big">✓</span><div><strong>Visit completed</strong>' +
-      '<div>Patient returned to the nurse discharge desk' + (p.discharged ? " and discharged." : " — pending discharge.") + '</div></div></div>' +
-      '<div class="mt-16"><a class="btn btn-secondary" href="#/nurse">Go to Nurse / Discharge Desk</a></div>';
+      '<div>Patient assessed and discharged by the doctor — visit archived.</div></div></div>' +
+      '<div class="mt-16"><a class="btn btn-secondary" href="#/' + (App.role || "mbbs") + '">Back to dashboard</a></div>';
   } else if (isNurseCase) {
     actions = '<div class="card card-pad">' +
-      '<h3 class="card-title">Nurse review — low risk case</h3>' +
+      '<h3 class="card-title">Nurse review — route patient</h3>' +
       '<div class="field"><label>Nurse notes</label><textarea class="textarea" id="paNotes" placeholder="e.g. Advised lifestyle changes, routine follow-up…"></textarea></div>' +
+      '<div class="field" style="display:flex;align-items:center;gap:8px">' +
+      '<input type="checkbox" id="paReqSpec"' + (p.requestedSpec ? " checked" : "") + ' style="width:16px;height:16px;accent-color:var(--spec)">' +
+      '<label for="paReqSpec" style="margin:0;cursor:pointer">Patient requested specialist consultation</label></div>' +
       '<div class="flex mt-8">' +
-      '<button class="btn btn-success grow" id="paDischarge">✓ Mark Done — Discharge</button>' +
-      '<button class="btn btn-danger" id="paEscalate">Escalate to MBBS</button>' +
-      '</div></div>';
+      '<button class="btn btn-primary grow" id="paToMbbs">Send to MBBS</button>' +
+      '<button class="btn btn-danger" id="paToSpec">Send to Specialist</button>' +
+      '</div>' +
+      '<div class="small muted mt-8">' + riskPill(p.risk) + ' · suggested route: ' + (p.risk === "HIGH" ? "Specialist — HIGH cases are served first" : p.requestedSpec ? "Specialist (patient requested)" : "MBBS") + '.</div></div>';
   } else if (isMbbsCase) {
     actions = '<div class="card card-pad">' +
       '<h3 class="card-title">Doctor assessment</h3>' +
       '<div class="field"><label>Clinical notes</label><textarea class="textarea" id="paNotes" placeholder="Enter assessment notes…"></textarea></div>' +
       '<div class="field"><label>Prescription</label><textarea class="textarea" id="paRx" placeholder="Enter prescription…"></textarea></div>' +
+      '<div class="field" style="display:flex;align-items:center;gap:8px">' +
+      '<input type="checkbox" id="paReqSpec"' + (p.requestedSpec ? " checked" : "") + ' style="width:16px;height:16px;accent-color:var(--spec)">' +
+      '<label for="paReqSpec" style="margin:0;cursor:pointer">Patient requested specialist consultation</label></div>' +
       '<div class="flex mt-8">' +
-      '<button class="btn btn-success grow" id="paPrescribe">Complete / Prescribe</button>' +
+      '<button class="btn btn-success grow" id="paPrescribe">Complete / Prescribe — Discharge</button>' +
       '<button class="btn btn-danger" id="paRefer">Refer to Specialist</button>' +
-      '</div></div>';
+      '</div>' +
+      (p.requestedSpec
+        ? '<div class="mt-8"><button class="btn btn-primary btn-block" id="paSendSpecReq">Send directly to Specialist (patient requested)</button></div>'
+        : "") +
+      '</div>';
   } else if (isSpecCase) {
     actions = '<div class="refer-card card card-pad">' +
       '<h3 class="card-title">' + (p.directConsult ? "Direct consult" : "Referred to specialist") + '</h3>' +
@@ -892,9 +905,6 @@ function patientPanelScreen(c, seg) {
     '<dt>Condition</dt><dd>' + esc(p.condition) + '</dd>' +
     '<dt>Assigned</dt><dd>' + assignee(p) + '</dd>' +
     '</div>' +
-    '<div class="divider"></div>' +
-    '<h3 class="card-title">Retinal image <span class="small muted">(current visit)</span></h3>' +
-    '<div class="img-stage" style="min-height:300px">' + fundusSVG(p.id + "-cur", p.risk, { overlay: true }) + '</div>' +
     '</div>' +
     '<div>' +
     '<div class="card card-pad mb-16">' +
@@ -945,36 +955,49 @@ function patientPanelScreen(c, seg) {
 
   var notes = c.querySelector("#paNotes"), rx = c.querySelector("#paRx");
 
-  if (c.querySelector("#paDischarge")) {
-    c.querySelector("#paDischarge").addEventListener("click", function () {
-      if (!notes.value.trim()) { toast("Add nurse notes before discharging"); return; }
-      p.history.push({
-        no: p.visitNo,
-        date: new Date().toISOString().slice(0, 10),
-        risk: p.risk, score: p.score,
-        notes: notes.value.trim(),
-        rx: "Routine care — no prescription.",
-        by: (D.nurse(p.assignedTo) || {}).name || "Nurse / Intake"
-      });
-      p.visitNo++;
-      p.status = "completed";
-      p.discharged = true;
-      toast("Patient discharged — visit archived");
-      navigate("#/nurse");
-    });
+  function requestFlag() {
+    var cb = c.querySelector("#paReqSpec");
+    if (cb) p.requestedSpec = cb.checked;
   }
-  if (c.querySelector("#paEscalate")) {
-    c.querySelector("#paEscalate").addEventListener("click", function () {
+
+  if (c.querySelector("#paToMbbs")) {
+    c.querySelector("#paToMbbs").addEventListener("click", function () {
+      requestFlag();
+      if (!notes.value.trim()) { toast("Add nurse notes before routing"); return; }
+      var nurseName = (D.nurse(p.assignedTo) || {}).name || "Nurse / Intake";
       p.routedTo = "mbbs";
-      p.assignedTo = "d1";
+      p.assignedTo = "d" + (1 + hashStr(p.id || p.name) % 3);
+      p.directConsult = false;
+      p.mode = null;
       p.status = "queued";
       p.referral = {
-        reason: "Escalated by nurse — " + (notes.value.trim() || "further review needed"),
-        byDoctor: (D.nurse(p.assignedTo) || {}).name || "Nurse / Intake",
+        reason: "Routed by nurse — " + (notes.value.trim() || "MBBS review"),
+        byDoctor: nurseName,
         date: "Today " + new Date().toTimeString().slice(0, 5),
         priority: p.risk
       };
-      toast(p.name + " escalated to MBBS queue");
+      toast(p.name + " sent to MBBS queue");
+      render();
+    });
+  }
+  if (c.querySelector("#paToSpec")) {
+    c.querySelector("#paToSpec").addEventListener("click", function () {
+      requestFlag();
+      if (!notes.value.trim()) { toast("Add nurse notes before routing"); return; }
+      var nurseName = (D.nurse(p.assignedTo) || {}).name || "Nurse / Intake";
+      var spec = specialistsAvailable()[0] || D.specialists[0];
+      p.routedTo = "specialist";
+      p.assignedTo = spec.id;
+      p.directConsult = false;
+      p.mode = null;
+      p.status = "queued";
+      p.referral = {
+        reason: (p.risk === "HIGH" ? "HIGH risk — specialist priority" : "Patient requested specialist") + " · " + (notes.value.trim() || "Specialist review"),
+        byDoctor: nurseName,
+        date: "Today " + new Date().toTimeString().slice(0, 5),
+        priority: p.risk
+      };
+      toast(p.name + " sent to Specialist queue");
       render();
     });
   }
@@ -991,8 +1014,29 @@ function patientPanelScreen(c, seg) {
       });
       p.visitNo++;
       p.status = "completed";
-      toast("Visit completed — patient returned to Nurse for discharge");
+      p.discharged = true;
+      toast("Visit completed — patient discharged");
       navigate("#/mbbs");
+    });
+  }
+  if (c.querySelector("#paSendSpecReq")) {
+    c.querySelector("#paSendSpecReq").addEventListener("click", function () {
+      requestFlag();
+      if (!notes.value.trim()) { toast("Add clinical notes before sending"); return; }
+      var spec = specialistsAvailable()[0] || D.specialists[0];
+      p.routedTo = "specialist";
+      p.assignedTo = spec.id;
+      p.directConsult = false;
+      p.mode = null;
+      p.status = "queued";
+      p.referral = {
+        reason: "Patient requested specialist · " + (notes.value.trim() || "Specialist review"),
+        byDoctor: "Dr. Anjali Sharma",
+        date: "Today " + new Date().toTimeString().slice(0, 5),
+        priority: p.risk
+      };
+      toast(p.name + " sent directly to " + spec.name);
+      render();
     });
   }
   if (c.querySelector("#paRefer")) {
@@ -1073,72 +1117,19 @@ function visitScreen(c, seg) {
 
 function specialistScreen(c) {
   var queue = specQueue();
-  var avail = specialistsAvailable();
+  var grid = queueGrid(queue);
 
   c.innerHTML =
     pageHead("Specialist Dashboard", "Dr. Vikram Rao · Retina Clinic A",
       '<a class="btn btn-secondary" href="#/waiting">Waiting Room</a>') +
-    '<div class="grid grid-3 mb-16">' +
-    '<div class="stat-tile"><div class="label">Waiting consults</div><div class="value" style="color:var(--spec)">' + queue.length + '</div></div>' +
-    '<div class="stat-tile"><div class="label">Direct consults</div><div class="value" style="color:var(--high)">' + queue.filter(function (p) { return p.directConsult; }).length + '</div></div>' +
-    '<div class="stat-tile"><div class="label">Signed off</div><div class="value" style="color:var(--success)">' + D.patients.filter(function (p) { return p.status === "completed"; }).length + '</div></div>' +
-    '</div>' +
-    '<div class="card card-pad mb-16">' +
-    '<h3 class="card-title">Specialist availability — affects direct HIGH-risk routing</h3>' +
-    '<div class="grid grid-3">' +
-    D.specialists.map(function (s) {
-      return '<div class="card card-pad" style="background:var(--surface-2)">' +
-        '<div class="flex align-center">' + avatar(s.name, "spec") +
-        '<div class="grow"><strong>' + esc(s.name) + '</strong><div class="small muted">' + esc(s.clinic) + '</div>' +
-        '<div class="small muted mt-8">' + s.modes.join(" · ") + '</div></div>' +
-        '<button class="btn btn-sm ' + (s.available ? "btn-success" : "btn-secondary") + '" data-specavail="' + s.id + '">' + (s.available ? "Available" : "Unavailable") + '</button>' +
-        '</div></div>';
-    }).join("") +
-    '</div>' +
-    '<div class="small muted mt-8">' + (avail.length
-      ? avail.length + " specialist(s) available — new HIGH-risk cases route directly here."
-      : "No specialist available — new HIGH-risk cases route to the MBBS queue.") + '</div>' +
-    '</div>' +
     '<div class="card card-pad">' +
     '<div class="wait-section-head"><span class="bar" style="background:#5b21b6"></span>' +
     '<h3 style="color:#5b21b6">Specialist waiting room</h3>' +
-    '<span class="wait-count">' + queue.length + '</span></div>' +
-    (queue.length
-      ? '<div class="table-wrap"><table class="table"><thead><tr>' +
-        '<th>Patient</th><th>Risk</th><th>Type</th><th>Reason</th><th>Referring</th><th>Waiting</th><th></th>' +
-        '</tr></thead><tbody>' +
-        queue.map(function (p) {
-          var type = p.directConsult
-            ? '<span class="pill pill-high">Direct' + (p.mode ? " · " + p.mode : "") + '</span>'
-            : '<span class="pill pill-spec">Referral</span>';
-          return '<tr class="row-link clickable-row" data-open="' + p.id + '">' +
-            '<td><strong>' + esc(p.name) + '</strong><div class="small muted mono">' + esc(p.patientId) + '</div></td>' +
-            '<td>' + riskPill(p.risk) + '</td>' +
-            '<td>' + type + '</td>' +
-            '<td>' + esc((p.referral || {}).reason || "—") + '</td>' +
-            '<td>' + esc((p.referral || {}).byDoctor || "—") + '</td>' +
-            '<td class="mono">' + p.waitMin + ' min</td>' +
-            '<td><span class="btn btn-primary btn-sm">Open reading screen →</span></td>' +
-            '</tr>';
-        }).join("") +
-        '</tbody></table></div>'
-      : '<div class="empty">No consults in queue</div>') +
-    '</div>';
-  bindPatientRows(c);
-  c.querySelectorAll("[data-specavail]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var sid = b.getAttribute("data-specavail");
-      var s = D.spec(sid);
-      s.available = !s.available;
-      toast(s.name + " is now " + (s.available ? "available" : "unavailable"));
-      render();
-    });
-  });
-  c.querySelectorAll("[data-open]").forEach(function (r) {
-    r.addEventListener("click", function () {
-      navigate("#/reading/" + r.getAttribute("data-open"));
-    });
-  });
+    '<span class="wait-count">' + queue.length + '</span>' +
+    '<span class="small muted" style="margin-left:auto">HIGH risk served first</span></div>' +
+    queueSummary("Specialist queue", queue, "HIGH risk served first") +
+    '<div class="patient-card-grid">' + grid.cards + grid.empty + '</div></div>';
+  bindPatientCards(c);
 }
 
 /* ---------------- screen: retinal reading (hero) ---------------- */
@@ -1304,7 +1295,7 @@ function signoffScreen(c, seg) {
       pageHead("Visit Completed", p.name + " · " + p.patientId,
         '<a class="btn btn-secondary" href="#/specialist">← Specialist queue</a>') +
       '<div class="success-banner"><span class="big">✓</span><div>' +
-      '<strong>Visit completed</strong><div>Prescription signed. Patient removed from the waiting room and returned to the <strong>nurse discharge desk</strong>.</div></div></div>' +
+      '<strong>Visit completed</strong><div>Prescription signed. Patient removed from the waiting room, discharged and the visit archived.</div></div></div>' +
       '<div class="card card-pad mt-16"><h3 class="card-title">Signed record</h3>' +
       '<div class="kv">' +
       '<dt>Patient</dt><dd>' + esc(p.name) + ' · ' + esc(p.patientId) + '</dd>' +
@@ -1312,8 +1303,7 @@ function signoffScreen(c, seg) {
       '<dt>Prescription</dt><dd>' + esc((p.history[p.history.length - 1] || {}).rx || "—") + '</dd>' +
       '<dt>Signed by</dt><dd>' + esc((p.history[p.history.length - 1] || {}).by || "—") + '</dd>' +
       '</div></div>' +
-      '<div class="mt-16 flex"><a class="btn btn-primary" href="#/nurse">Go to Nurse / Discharge Desk</a>' +
-      '<a class="btn btn-secondary" href="#/specialist">Back to Specialist Dashboard</a></div>';
+      '<div class="mt-16"><a class="btn btn-primary" href="#/specialist">Back to Specialist Dashboard</a></div>';
     return;
   }
 
@@ -1336,14 +1326,14 @@ function signoffScreen(c, seg) {
     '</div>' +
     '<div class="card card-pad">' +
     '<h3 class="card-title">Sign off</h3>' +
-    '<p class="small muted">Signing off completes the visit: the prescription becomes part of the patient record, the patient is removed from the waiting room, and the visit is returned to the <strong>nurse discharge desk</strong>.</p>' +
-    '<button class="btn btn-success btn-lg btn-block" id="soSign">✍ Sign Off</button>' +
+    '<p class="small muted">Signing off completes the visit: the prescription becomes part of the patient record, the patient is discharged and the visit is archived for future comparison.</p>' +
+    '<button class="btn btn-success btn-lg btn-block" id="soSign">✍ Sign Off — Discharge</button>' +
     '<div class="divider"></div>' +
     '<div class="small muted">Expected outcome</div>' +
     '<div class="finding"><div class="sev">✓</div><div>Visit completed</div></div>' +
     '<div class="finding"><div class="sev">✓</div><div>Prescription signed</div></div>' +
     '<div class="finding"><div class="sev">✓</div><div>Patient removed from waiting room</div></div>' +
-    '<div class="finding"><div class="sev">✓</div><div>Returned to nurse for discharge</div></div>' +
+    '<div class="finding"><div class="sev">✓</div><div>Patient discharged by the specialist</div></div>' +
     '<div class="finding"><div class="sev">✓</div><div>Visit archived for future comparison</div></div>' +
     '</div>' +
     '</div>';
@@ -1359,8 +1349,9 @@ function signoffScreen(c, seg) {
     });
     p.visitNo++;
     p.status = "completed";
+    p.discharged = true;
     App.pendingSign = null;
-    toast("Visit completed — patient returned to Nurse for discharge");
+    toast("Visit completed — patient discharged");
     render();
   });
 }
@@ -1369,7 +1360,7 @@ function signoffScreen(c, seg) {
 
 function adminScreen(c) {
   var active = activePatients();
-  var completed = dischargeQueue();
+  var completed = D.patients.filter(function (p) { return p.status === "completed"; });
   var avail = specialistsAvailable();
 
   c.innerHTML =
@@ -1378,7 +1369,7 @@ function adminScreen(c) {
     '<div class="grid grid-4 mb-16">' +
     '<div class="stat-tile"><div class="label">Active patients</div><div class="value">' + active.length + '</div></div>' +
     '<div class="stat-tile"><div class="label">MBBS / Specialist / Nurse</div><div class="value mono" style="font-size:18px">' + mbbsQueue().length + ' · ' + specQueue().length + ' · ' + nurseQueue().length + '</div></div>' +
-    '<div class="stat-tile"><div class="label">Awaiting discharge</div><div class="value" style="color:var(--success)">' + completed.length + '</div></div>' +
+    '<div class="stat-tile"><div class="label">Completed today</div><div class="value" style="color:var(--success)">' + completed.length + '</div></div>' +
     '<div class="stat-tile"><div class="label">Specialists available</div><div class="value" style="color:var(--spec)">' + avail.length + '/' + D.specialists.length + '</div></div>' +
     '</div>' +
     '<div class="card card-pad mb-16">' +
